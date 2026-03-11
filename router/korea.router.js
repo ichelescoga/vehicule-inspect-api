@@ -57,22 +57,31 @@ router.put('/updateTechnical/:id', catalogController.updateTechnical)
 router.get('/getAllVehiculeBrands', vehicleController.getAllVehiculeBrands)
 router.get('/getAllVehiculeType', vehicleController.getAllVehiculeType)
 router.get('/getAllVehicleParts', vehicleController.getAllVehicleParts)
+router.get('/searchVehicleByPlate/:plate', vehicleController.searchVehicleByPlate)
 router.get('/getAllVehicles', vehicleController.getAllVehicles)
 router.post('/createVehicle', vehicleController.createVehicle)
+router.put('/updateVehicle/:id', vehicleController.updateVehicle)
 router.post('/createVehiculeBrand', vehicleController.createVehiculeBrand)
 router.post('/createVehiculeType', vehicleController.createVehiculeType)
+router.get('/searchVehicleParts/:name', vehicleController.searchVehicleParts)
+router.post('/createVehiclePart', vehicleController.createVehiclePart)
 
 // Client
 router.get('/getAllClients', clientController.getAllClients)
+router.get('/searchClientByNit/:nit', clientController.searchClientByNit)
+router.get('/searchClientByName/:name', clientController.searchClientByName)
 router.post('/createClient', clientController.createClient)
+router.put('/updateClient/:id', clientController.updateClient)
 
 // Service
 router.get('/getAllServices', serviceController.getAllServices)
 
 // Order
+router.get('/searchOrders', orderController.searchOrders)
 router.post('/createOrder', orderController.createOrder)
 router.get('/getOrderById/:id', orderController.getOrderById)
 router.get('/getAllOrders', orderController.getAllOrders)
+router.put('/updateOrder/:id', orderController.updateOrder)
 router.put('/updateOrderStatus/:id', orderController.updateOrderStatus)
 router.get('/getOrdersByClient/:clientId', orderController.getOrdersByClient)
 router.post('/createOrderVehiculePart', orderController.createOrderVehiculePart)

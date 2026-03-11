@@ -97,6 +97,82 @@ exports.getAllOrders = async (req, res, next) => {
     }
 }
 
+exports.searchOrders = async (req, res, next) => {
+    try{
+        let filters = {
+            number_pass: req.query.number_pass,
+            client_nit: req.query.client_nit,
+            client_name: req.query.client_name,
+            plate_id: req.query.plate_id,
+            vendor_name: req.query.vendor_name,
+            technical_name: req.query.technical_name
+        }
+        let result = await orderRepository.searchOrders(filters)
+        console.log(result)
+        if (!result) {
+            console.info("Orders not found")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
+exports.updateOrder = async (req, res, next) => {
+    try{
+        let params = {
+            number_pass: req.body.number_pass,
+            order_date: req.body.order_date,
+            payment_type: req.body.payment_type,
+            delivery_date: req.body.delivery_date,
+            client_id: req.body.client_id,
+            vendor_id: req.body.vendor_id,
+            vehicule_id: req.body.vehicule_id,
+            technical_id: req.body.technical_id
+        }
+        let result = await orderRepository.updateOrder(req.params.id, params)
+        console.log(result)
+        if (!result) {
+            console.info("Order was not updated")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
 exports.updateOrderStatus = async (req, res, next) => {
     try{
         let result = await orderRepository.updateOrderStatus(req.params.id, req.body.status)

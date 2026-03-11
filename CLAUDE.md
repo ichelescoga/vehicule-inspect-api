@@ -64,31 +64,66 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - Response format: `{ success: boolean, payload: any }`
 - Repository uses module pattern (IIFE) exporting functions
 - Controller functions: `async (req, res, next)` with try/catch
+- Search endpoints use Sequelize `Op.like` with `%query%` for partial matching
 
 ## API Endpoints (base: `/korea/v1`)
 
-### Catálogos (GET)
+### Healthcheck
 - `GET /healthcheck`
-- `GET /getAllVehiculeBrands`
-- `GET /getAllVehiculeType`
-- `GET /getAllVendors`
-- `GET /getAllTechnicals`
-- `GET /getAllClients`
-- `GET /getAllVehicleParts`
-- `GET /getAllServices` (includes Service_Options)
 
-### Órdenes
+### Catalog (Vendor / Technical)
+- `GET /getAllVendors` — Listar proveedores
+- `POST /createVendor` — Crear proveedor
+- `PUT /updateVendor/:id` — Actualizar proveedor
+- `GET /getAllTechnicals` — Listar técnicos
+- `POST /createTechnical` — Crear técnico
+- `PUT /updateTechnical/:id` — Actualizar técnico
+
+### Vehicle
+- `GET /getAllVehicles` — Listar vehículos con marca y tipo
+- `GET /getAllVehiculeBrands` — Listar marcas
+- `GET /getAllVehiculeType` — Listar tipos
+- `GET /getAllVehicleParts` — Listar partes
+- `GET /searchVehicleByPlate/:plate` — Buscar vehículos por placa (búsqueda parcial)
+- `POST /createVehicle` — Crear vehículo
+- `PUT /updateVehicle/:id` — Actualizar vehículo
+- `POST /createVehiculeBrand` — Crear marca
+- `POST /createVehiculeType` — Crear tipo
+- `GET /searchVehicleParts/:name` — Buscar partes por nombre (búsqueda parcial)
+- `POST /createVehiclePart` — Crear parte de vehículo
+
+### Client
+- `GET /getAllClients` — Listar clientes activos
+- `GET /searchClientByNit/:nit` — Buscar clientes por NIT (búsqueda parcial)
+- `GET /searchClientByName/:name` — Buscar clientes por nombre (búsqueda parcial)
+- `POST /createClient` — Crear cliente
+- `PUT /updateClient/:id` — Actualizar cliente
+
+### Service
+- `GET /getAllServices` — Listar servicios con opciones
+
+### Order
+- `GET /searchOrders` — Buscar órdenes con filtros opcionales (number_pass, client_nit, client_name, plate_id, vendor_name, technical_name)
 - `POST /createOrder` — Crear encabezado de orden
 - `POST /createOrderVehiculePart` — Agregar parte inspeccionada a orden
 - `POST /createOrderServiceOption` — Asignar opción de servicio a orden
 - `GET /getOrderById/:id` — Orden con todas sus relaciones
 - `GET /getAllOrders` — Listar órdenes
+- `PUT /updateOrder/:id` — Actualizar orden completa
 - `PUT /updateOrderStatus/:id` — Actualizar estado de orden
 - `GET /getOrdersByClient/:clientId` — Órdenes por cliente
 
-### Creación de entidades
-- `POST /createClient`
-- `POST /createVehicle`
+## Documentation
+- `docs/order/ORDER_API.md` — Documentación de endpoints de órdenes
+- `docs/client/CLIENT_API.md` — Documentación de endpoints de clientes (incluye búsqueda por NIT y nombre)
+- `docs/vehicle/VEHICLE_API.md` — Documentación de endpoints de vehículos
+- `docs/service/SERVICE_API.md` — Documentación de endpoints de servicios
+- `docs/catalog/CATALOG_API.md` — Documentación de endpoints de catálogos
+- `docs/Vehicle_Inspect_API.postman_collection.json` — Postman collection
+
+## Frontend Companion
+- Proyecto Flutter en `../vehicule-inspect-front/` consume esta API
+- Ver `../vehicule-inspect-front/CLAUDE.md` para contexto del frontend
 
 ## Commands
 - `npm run devStart` — Development with nodemon

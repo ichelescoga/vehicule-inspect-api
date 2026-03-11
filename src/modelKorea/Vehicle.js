@@ -11,12 +11,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    linea: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
     plate_id: {
       type: DataTypes.STRING(10),
       allowNull: false
     },
     color: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(45),
       allowNull: true
     },
     vehicule_type_id: {

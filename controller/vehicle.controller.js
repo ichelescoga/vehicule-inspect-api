@@ -62,6 +62,7 @@ exports.createVehicle = async (req, res, next) => {
     try{
         let params = {
             model: req.body.model,
+            linea: req.body.linea,
             plate_id: req.body.plate_id,
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
@@ -152,6 +153,72 @@ exports.getAllVehicles = async (req, res, next) => {
     }
 }
 
+exports.searchVehicleByPlate = async (req, res, next) => {
+    try{
+        let result = await vehicleRepository.searchVehicleByPlate(req.params.plate)
+        console.log(result)
+        if (!result) {
+            console.info("Vehicles not found")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
+exports.updateVehicle = async (req, res, next) => {
+    try{
+        let params = {
+            model: req.body.model,
+            linea: req.body.linea,
+            plate_id: req.body.plate_id,
+            color: req.body.color,
+            vehicule_type_id: req.body.vehicule_type_id,
+            vehicule_brand_id: req.body.vehicule_brand_id
+        }
+        let result = await vehicleRepository.updateVehicle(req.params.id, params)
+        console.log(result)
+        if (!result) {
+            console.info("Vehicle was not updated")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
 exports.createVehiculeBrand = async (req, res, next) => {
     try{
         let params = {
@@ -161,6 +228,67 @@ exports.createVehiculeBrand = async (req, res, next) => {
         console.log(result)
         if (!result) {
             console.info("Vehicule Brand was not created")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
+exports.searchVehicleParts = async (req, res, next) => {
+    try{
+        let result = await vehicleRepository.searchVehicleParts(req.params.name)
+        console.log(result)
+        if (!result) {
+            console.info("Vehicle Parts not found")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error
+        })
+        return
+    }
+}
+
+exports.createVehiclePart = async (req, res, next) => {
+    try{
+        let params = {
+            name: req.body.name
+        }
+        let result = await vehicleRepository.createVehiclePart(params)
+        console.log(result)
+        if (!result) {
+            console.info("Vehicle Part was not created")
             res.json({
                 success: false,
                 payload: result

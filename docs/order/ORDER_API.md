@@ -6,6 +6,47 @@ Base URL: `/korea/v1`
 
 ---
 
+## GET `/searchOrders`
+
+Busca órdenes con filtros opcionales. Todos los filtros son independientes y se pueden combinar. Utiliza búsqueda parcial (LIKE) en todos los campos.
+
+### Query Parameters
+| Parámetro | Tipo | Requerido | Descripción |
+|-----------|------|-----------|-------------|
+| number_pass | String | No | Número de pase (búsqueda parcial) |
+| client_nit | String | No | NIT del cliente (búsqueda parcial) |
+| client_name | String | No | Nombre del cliente (búsqueda parcial) |
+| plate_id | String | No | Placa del vehículo (búsqueda parcial) |
+| vendor_name | String | No | Nombre del vendedor (búsqueda parcial) |
+| technical_name | String | No | Nombre del técnico (búsqueda parcial) |
+
+### Request Example
+```
+GET /korea/v1/searchOrders?client_name=Juan&plate_id=ABC
+```
+
+### Response (200)
+```json
+{
+  "success": true,
+  "payload": [
+    {
+      "id": 1,
+      "number_pass": 1,
+      "order_date": "2026-03-10T00:00:00.000Z",
+      "client_id": 1,
+      "status": 1,
+      "client": { "id": 1, "name": "Juan Pérez" },
+      "vendor": { "id": 1, "name": "AutoParts Korea" },
+      "vehicule": { "id": 1, "plate_id": "ABC123" },
+      "technical": { "id": 1, "name": "Carlos Gómez" }
+    }
+  ]
+}
+```
+
+---
+
 ## POST `/createOrder`
 
 Crea el encabezado de una orden de inspección.
@@ -194,6 +235,59 @@ Lista todas las órdenes con relaciones básicas (cliente, proveedor, vehículo,
   ]
 }
 ```
+
+---
+
+## PUT `/updateOrder/:id`
+
+Actualiza los datos completos de una orden existente (excepto el estado) y registra la fecha de actualización.
+
+### Request
+
+**Params:**
+| Param | Tipo | Descripción |
+|-------|------|-------------|
+| id | Integer | ID de la orden |
+
+**Headers:**
+| Header | Valor |
+|--------|-------|
+| Content-Type | application/json |
+
+**Body:**
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| number_pass | Integer | No | Número de pase |
+| order_date | Date (ISO 8601) | No | Fecha de la orden |
+| payment_type | Integer | No | Tipo de pago |
+| delivery_date | Date (ISO 8601) | No | Fecha de entrega |
+| client_id | Integer | No | ID del cliente |
+| vendor_id | Integer | No | ID del proveedor |
+| vehicule_id | Integer | No | ID del vehículo |
+| technical_id | Integer | No | ID del técnico asignado |
+
+### Request Example
+```json
+{
+  "number_pass": 2,
+  "order_date": "2026-03-10",
+  "payment_type": 2,
+  "delivery_date": "2026-03-20",
+  "client_id": 1,
+  "vendor_id": 1,
+  "vehicule_id": 1,
+  "technical_id": 2
+}
+```
+
+### Response (200)
+```json
+{
+  "success": true,
+  "payload": [1]
+}
+```
+> El array indica el número de filas afectadas.
 
 ---
 

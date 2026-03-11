@@ -7,7 +7,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:3000/korea/v1"
+			"value": "http://localhost:80/korea/v1"
 		}
 	],
 	"item": [
@@ -21,8 +21,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/healthcheck",
-							"host": ["{{base_url}}"],
-							"path": ["healthcheck"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"healthcheck"
+							]
 						}
 					}
 				}
@@ -38,8 +42,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllVendors",
-							"host": ["{{base_url}}"],
-							"path": ["getAllVendors"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllVendors"
+							]
 						}
 					}
 				},
@@ -59,8 +67,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createVendor",
-							"host": ["{{base_url}}"],
-							"path": ["createVendor"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createVendor"
+							]
 						}
 					}
 				},
@@ -80,8 +92,13 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/updateVendor/1",
-							"host": ["{{base_url}}"],
-							"path": ["updateVendor", "1"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateVendor",
+								"1"
+							]
 						}
 					}
 				},
@@ -92,8 +109,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllTechnicals",
-							"host": ["{{base_url}}"],
-							"path": ["getAllTechnicals"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllTechnicals"
+							]
 						}
 					}
 				},
@@ -113,8 +134,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createTechnical",
-							"host": ["{{base_url}}"],
-							"path": ["createTechnical"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createTechnical"
+							]
 						}
 					}
 				},
@@ -134,8 +159,13 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/updateTechnical/1",
-							"host": ["{{base_url}}"],
-							"path": ["updateTechnical", "1"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateTechnical",
+								"1"
+							]
 						}
 					}
 				}
@@ -151,8 +181,46 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllClients",
-							"host": ["{{base_url}}"],
-							"path": ["getAllClients"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllClients"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Client By NIT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/searchClientByNit/900",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"searchClientByNit",
+								"900"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Client By Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/searchClientByName/Juan",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"searchClientByName",
+								"Juan"
+							]
 						}
 					}
 				},
@@ -172,8 +240,38 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createClient",
-							"host": ["{{base_url}}"],
-							"path": ["createClient"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createClient"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Juan Pérez Actualizado\",\n  \"address\": \"Calle 456 #78-90\",\n  \"bill_name\": \"Juan Pérez SA\",\n  \"nit\": \"900123456\",\n  \"email\": \"juan.new@email.com\",\n  \"office_cel\": \"3001234567\",\n  \"residence_cel\": \"6011234567\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateClient/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateClient",
+								"1"
+							]
 						}
 					}
 				}
@@ -189,8 +287,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllVehicles",
-							"host": ["{{base_url}}"],
-							"path": ["getAllVehicles"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllVehicles"
+							]
 						}
 					}
 				},
@@ -201,8 +303,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllVehiculeBrands",
-							"host": ["{{base_url}}"],
-							"path": ["getAllVehiculeBrands"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllVehiculeBrands"
+							]
 						}
 					}
 				},
@@ -213,8 +319,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllVehiculeType",
-							"host": ["{{base_url}}"],
-							"path": ["getAllVehiculeType"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllVehiculeType"
+							]
 						}
 					}
 				},
@@ -225,8 +335,29 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllVehicleParts",
-							"host": ["{{base_url}}"],
-							"path": ["getAllVehicleParts"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllVehicleParts"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Vehicle By Plate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/searchVehicleByPlate/ABC",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"searchVehicleByPlate",
+								"ABC"
+							]
 						}
 					}
 				},
@@ -246,8 +377,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createVehiculeBrand",
-							"host": ["{{base_url}}"],
-							"path": ["createVehiculeBrand"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createVehiculeBrand"
+							]
 						}
 					}
 				},
@@ -267,8 +402,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createVehiculeType",
-							"host": ["{{base_url}}"],
-							"path": ["createVehiculeType"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createVehiculeType"
+							]
 						}
 					}
 				},
@@ -284,12 +423,84 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"model\": 2024,\n  \"plate_id\": \"ABC123\",\n  \"color\": 1,\n  \"vehicule_type_id\": 1,\n  \"vehicule_brand_id\": 1\n}"
+							"raw": "{\n  \"model\": 2024,\n  \"linea\": \"Tucson\",\n  \"plate_id\": \"ABC123\",\n  \"color\": \"Rojo\",\n  \"vehicule_type_id\": 1,\n  \"vehicule_brand_id\": 1\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/createVehicle",
-							"host": ["{{base_url}}"],
-							"path": ["createVehicle"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createVehicle"
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Vehicle Parts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/searchVehicleParts/puerta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"searchVehicleParts",
+								"puerta"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Vehicle Part",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Espejo lateral izquierdo\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createVehiclePart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createVehiclePart"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Vehicle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"model\": 2025,\n  \"linea\": \"Tucson\",\n  \"plate_id\": \"ABC123\",\n  \"color\": \"Azul\",\n  \"vehicule_type_id\": 1,\n  \"vehicule_brand_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateVehicle/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateVehicle",
+								"1"
+							]
 						}
 					}
 				}
@@ -305,8 +516,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllServices",
-							"host": ["{{base_url}}"],
-							"path": ["getAllServices"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllServices"
+							]
 						}
 					}
 				}
@@ -315,6 +530,52 @@
 		{
 			"name": "Order",
 			"item": [
+				{
+					"name": "Search Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/searchOrders?client_name=Juan&plate_id=ABC",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"searchOrders"
+							],
+							"query": [
+								{
+									"key": "number_pass",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "client_nit",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "client_name",
+									"value": "Juan"
+								},
+								{
+									"key": "plate_id",
+									"value": "ABC"
+								},
+								{
+									"key": "vendor_name",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "technical_name",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
 				{
 					"name": "Create Order",
 					"request": {
@@ -331,8 +592,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createOrder",
-							"host": ["{{base_url}}"],
-							"path": ["createOrder"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createOrder"
+							]
 						}
 					}
 				},
@@ -343,8 +608,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getOrderById/1",
-							"host": ["{{base_url}}"],
-							"path": ["getOrderById", "1"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getOrderById",
+								"1"
+							]
 						}
 					}
 				},
@@ -355,8 +625,38 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getAllOrders",
-							"host": ["{{base_url}}"],
-							"path": ["getAllOrders"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getAllOrders"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number_pass\": 2,\n  \"order_date\": \"2026-03-10\",\n  \"payment_type\": 2,\n  \"delivery_date\": \"2026-03-20\",\n  \"client_id\": 1,\n  \"vendor_id\": 1,\n  \"vehicule_id\": 1,\n  \"technical_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateOrder/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateOrder",
+								"1"
+							]
 						}
 					}
 				},
@@ -376,8 +676,13 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/updateOrderStatus/1",
-							"host": ["{{base_url}}"],
-							"path": ["updateOrderStatus", "1"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"updateOrderStatus",
+								"1"
+							]
 						}
 					}
 				},
@@ -388,8 +693,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/getOrdersByClient/1",
-							"host": ["{{base_url}}"],
-							"path": ["getOrdersByClient", "1"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"getOrdersByClient",
+								"1"
+							]
 						}
 					}
 				},
@@ -409,8 +719,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createOrderVehiculePart",
-							"host": ["{{base_url}}"],
-							"path": ["createOrderVehiculePart"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createOrderVehiculePart"
+							]
 						}
 					}
 				},
@@ -430,8 +744,12 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/createOrderServiceOption",
-							"host": ["{{base_url}}"],
-							"path": ["createOrderServiceOption"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"createOrderServiceOption"
+							]
 						}
 					}
 				}

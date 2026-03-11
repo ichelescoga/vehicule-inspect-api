@@ -24,9 +24,43 @@ let ClientRepository = function(){
         })
     }
 
+    let searchClientByNit = async(nit) => {
+        return await models.Client.findAll({
+            where: {
+                nit: { [require('sequelize').Op.like]: `%${nit}%` },
+                status: 1
+            }
+        })
+    }
+
+    let searchClientByName = async(name) => {
+        return await models.Client.findAll({
+            where: {
+                name: { [require('sequelize').Op.like]: `%${name}%` },
+                status: 1
+            }
+        })
+    }
+
+    let updateClient = async(id, params) => {
+        return await models.Client.update({
+            name: params.name,
+            address: params.address,
+            bill_name: params.bill_name,
+            nit: params.nit,
+            email: params.email,
+            office_cel: params.office_cel,
+            residence_cel: params.residence_cel,
+            update_date: new Date()
+        }, { where: { id: id } })
+    }
+
     return {
         getAllClients,
-        createClient
+        createClient,
+        searchClientByNit,
+        searchClientByName,
+        updateClient
     }
 
 }

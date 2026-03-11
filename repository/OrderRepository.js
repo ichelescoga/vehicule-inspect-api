@@ -1,4 +1,5 @@
 const sequelize = require('../components/conn_sqlz');
+const { Op } = require('sequelize');
 let initModels = require("../src/modelKorea/init-models");
 let models = initModels(sequelize);
 
@@ -57,6 +58,72 @@ let OrderRepository = function(){
         })
     }
 
+    let searchOrders = async(filters) => {
+        let where = {}
+        let clientWhere = {}
+        let vendorWhere = {}
+        let vehicleWhere = {}
+        let technicalWhere = {}
+        let hasClientFilter = false
+        let hasVendorFilter = false
+        let hasVehicleFilter = false
+        let hasTechnicalFilter = false
+
+        if (filters.number_pass) {
+            where.number_pass = { [Op.like]: `%${filters.number_pass}%` }
+        }
+
+        if (filters.client_nit) {
+            clientWhere.nit = { [Op.like]: `%${filters.client_nit}%` }
+            hasClientFilter = true
+        }
+
+        if (filters.client_name) {
+            clientWhere.name = { [Op.like]: `%${filters.client_name}%` }
+            hasClientFilter = true
+        }
+
+        if (filters.plate_id) {
+            vehicleWhere.plate_id = { [Op.like]: `%${filters.plate_id}%` }
+            hasVehicleFilter = true
+        }
+
+        if (filters.vendor_name) {
+            vendorWhere.name = { [Op.like]: `%${filters.vendor_name}%` }
+            hasVendorFilter = true
+        }
+
+        if (filters.technical_name) {
+            technicalWhere.name = { [Op.like]: `%${filters.technical_name}%` }
+            hasTechnicalFilter = true
+        }
+
+        return await models.Order_Header.findAll({
+            where: where,
+            include: [
+                { model: models.Client, as: 'client', where: hasClientFilter ? clientWhere : undefined, required: hasClientFilter },
+                { model: models.Vendor, as: 'vendor', where: hasVendorFilter ? vendorWhere : undefined, required: hasVendorFilter },
+                { model: models.Vehicle, as: 'vehicule', where: hasVehicleFilter ? vehicleWhere : undefined, required: hasVehicleFilter },
+                { model: models.Technical, as: 'technical', where: hasTechnicalFilter ? technicalWhere : undefined, required: hasTechnicalFilter }
+            ],
+            order: [['create_date', 'DESC']]
+        })
+    }
+
+    let updateOrder = async(id, params) => {
+        return await models.Order_Header.update({
+            number_pass: params.number_pass,
+            order_date: params.order_date,
+            payment_type: params.payment_type,
+            delivery_date: params.delivery_date,
+            client_id: params.client_id,
+            vendor_id: params.vendor_id,
+            vehicule_id: params.vehicule_id,
+            technical_id: params.technical_id,
+            update_date: new Date()
+        }, { where: { id: id } })
+    }
+
     let updateOrderStatus = async(id, status) => {
         return await models.Order_Header.update(
             { status: status, update_date: new Date() },
@@ -99,6 +166,8 @@ let OrderRepository = function(){
         createOrder,
         getOrderById,
         getAllOrders,
+        searchOrders,
+        updateOrder,
         updateOrderStatus,
         getOrdersByClient,
         createOrderVehiculePart,
