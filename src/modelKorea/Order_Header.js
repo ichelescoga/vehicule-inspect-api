@@ -7,10 +7,6 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    email: {
-      type: DataTypes.STRING(45),
-      allowNull: true
-    },
     close_date: {
       type: DataTypes.DATE,
       allowNull: true
@@ -69,6 +65,10 @@ module.exports = function(sequelize, DataTypes) {
     },
     update_date: {
       type: DataTypes.DATE,
+      allowNull: true
+    },
+    status: {
+      type: DataTypes.INTEGER,
       allowNull: true
     }
   }, {

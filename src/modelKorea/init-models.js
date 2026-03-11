@@ -7,7 +7,13 @@ var _Service_Option = require("./Service_Option");
 var _Service_Option_Assign = require("./Service_Option_Assign");
 var _Service_Type = require("./Service_Type");
 var _Technical = require("./Technical");
+var _User = require("./User");
+var _User_Rol = require("./User_Rol");
+var _User_Rol_Assign = require("./User_Rol_Assign");
 var _Vehicle = require("./Vehicle");
+var _Vehicle_Brand = require("./Vehicle_Brand");
+var _Vehicle_Part = require("./Vehicle_Part");
+var _Vehicle_Type = require("./Vehicle_Type");
 var _Vendor = require("./Vendor");
 
 function initModels(sequelize) {
@@ -19,7 +25,13 @@ function initModels(sequelize) {
   var Service_Option_Assign = _Service_Option_Assign(sequelize, DataTypes);
   var Service_Type = _Service_Type(sequelize, DataTypes);
   var Technical = _Technical(sequelize, DataTypes);
+  var User = _User(sequelize, DataTypes);
+  var User_Rol = _User_Rol(sequelize, DataTypes);
+  var User_Rol_Assign = _User_Rol_Assign(sequelize, DataTypes);
   var Vehicle = _Vehicle(sequelize, DataTypes);
+  var Vehicle_Brand = _Vehicle_Brand(sequelize, DataTypes);
+  var Vehicle_Part = _Vehicle_Part(sequelize, DataTypes);
+  var Vehicle_Type = _Vehicle_Type(sequelize, DataTypes);
   var Vendor = _Vendor(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
@@ -36,14 +48,18 @@ function initModels(sequelize) {
   Service_Option.hasMany(Service_Option_Assign, { as: "Service_Option_Assigns", foreignKey: "service_option_id"});
   Order_Header.belongsTo(Technical, { as: "technical", foreignKey: "technical_id"});
   Technical.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "technical_id"});
+  User_Rol_Assign.belongsTo(User, { as: "user", foreignKey: "user_id"});
+  User.hasMany(User_Rol_Assign, { as: "User_Rol_Assigns", foreignKey: "user_id"});
+  User_Rol_Assign.belongsTo(User_Rol, { as: "rol", foreignKey: "rol_id"});
+  User_Rol.hasMany(User_Rol_Assign, { as: "User_Rol_Assigns", foreignKey: "rol_id"});
   Order_Header.belongsTo(Vehicle, { as: "vehicule", foreignKey: "vehicule_id"});
   Vehicle.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "vehicule_id"});
-  Vehicle.belongsTo(Vehicule_Brand, { as: "vehicule_brand", foreignKey: "vehicule_brand_id"});
-  Vehicule_Brand.hasMany(Vehicle, { as: "Vehicles", foreignKey: "vehicule_brand_id"});
-  Order_Vehicule_Part.belongsTo(Vehicule_Part, { as: "vehicule_part", foreignKey: "vehicule_part_id"});
-  Vehicule_Part.hasMany(Order_Vehicule_Part, { as: "Order_Vehicule_Parts", foreignKey: "vehicule_part_id"});
-  Vehicle.belongsTo(Vehicule_Type, { as: "vehicule_type", foreignKey: "vehicule_type_id"});
-  Vehicule_Type.hasMany(Vehicle, { as: "Vehicles", foreignKey: "vehicule_type_id"});
+  Vehicle.belongsTo(Vehicle_Brand, { as: "vehicule_brand", foreignKey: "vehicule_brand_id"});
+  Vehicle_Brand.hasMany(Vehicle, { as: "Vehicles", foreignKey: "vehicule_brand_id"});
+  Order_Vehicule_Part.belongsTo(Vehicle_Part, { as: "vehicule_part", foreignKey: "vehicule_part_id"});
+  Vehicle_Part.hasMany(Order_Vehicule_Part, { as: "Order_Vehicule_Parts", foreignKey: "vehicule_part_id"});
+  Vehicle.belongsTo(Vehicle_Type, { as: "vehicule_type", foreignKey: "vehicule_type_id"});
+  Vehicle_Type.hasMany(Vehicle, { as: "Vehicles", foreignKey: "vehicule_type_id"});
   Order_Header.belongsTo(Vendor, { as: "vendor", foreignKey: "vendor_id"});
   Vendor.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "vendor_id"});
 
@@ -56,7 +72,13 @@ function initModels(sequelize) {
     Service_Option_Assign,
     Service_Type,
     Technical,
+    User,
+    User_Rol,
+    User_Rol_Assign,
     Vehicle,
+    Vehicle_Brand,
+    Vehicle_Part,
+    Vehicle_Type,
     Vendor,
   };
 }

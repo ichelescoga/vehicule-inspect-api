@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Vehicule_Type',
+        model: 'Vehicle_Type',
         key: 'id'
       }
     },
@@ -31,7 +31,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Vehicule_Brand',
+        model: 'Vehicle_Brand',
         key: 'id'
       }
     },
@@ -41,6 +41,10 @@ module.exports = function(sequelize, DataTypes) {
     },
     update_date: {
       type: DataTypes.DATE,
+      allowNull: true
+    },
+    status: {
+      type: DataTypes.INTEGER,
       allowNull: true
     }
   }, {
@@ -57,17 +61,17 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "vehiculeBrand_idx",
-        using: "BTREE",
-        fields: [
-          { name: "vehicule_brand_id" },
-        ]
-      },
-      {
         name: "vehiculeType_idx",
         using: "BTREE",
         fields: [
           { name: "vehicule_type_id" },
+        ]
+      },
+      {
+        name: "vehiculeVehiculeBrand_idx",
+        using: "BTREE",
+        fields: [
+          { name: "vehicule_brand_id" },
         ]
       },
     ]

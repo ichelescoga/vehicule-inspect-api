@@ -4,9 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 const createHttpError = require('http-errors');
 const app = express()
-const orderRouter = require('./router/order.router')
-const tribalRouter = require('./router/tribal.router')
-
+const koreaRouter = require('./router/korea.router')
 const sequelize = require('./components/conn_sqlz')
 
 app.use(cors())
@@ -16,9 +14,7 @@ app.use(bodyParser.urlencoded({
 }))
 
 
-
-app.use('/orders/v1',orderRouter)
-app.use('/tribal/v1',tribalRouter)
+app.use('/korea/v1',koreaRouter)
 app.use(function(req,res,next){
     let json_res = {
         url:req.url,

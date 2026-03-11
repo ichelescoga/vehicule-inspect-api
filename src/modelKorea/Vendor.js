@@ -18,6 +18,10 @@ module.exports = function(sequelize, DataTypes) {
     update_date: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    status: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

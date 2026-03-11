@@ -1,31 +1,27 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Service_Option', {
+  return sequelize.define('User_Rol_Assign', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    service_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Service',
+        model: 'User',
         key: 'id'
       }
     },
-    create_date: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    update_date: {
-      type: DataTypes.DATE,
-      allowNull: true
+    rol_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'User_Rol',
+        key: 'id'
+      }
     },
     status: {
       type: DataTypes.INTEGER,
@@ -33,8 +29,8 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'Service_Option',
-    timestamps: false,
+    tableName: 'User_Rol_Assign',
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -45,10 +41,17 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "serviceOption_idx",
+        name: "user_user_rol_assign_idx",
         using: "BTREE",
         fields: [
-          { name: "service_id" },
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "rol_user_rol_assign_idx",
+        using: "BTREE",
+        fields: [
+          { name: "rol_id" },
         ]
       },
     ]

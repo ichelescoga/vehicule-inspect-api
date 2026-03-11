@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Client', {
+  return sequelize.define('Vehicle_Part', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -9,30 +9,6 @@ module.exports = function(sequelize, DataTypes) {
     },
     name: {
       type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    address: {
-      type: DataTypes.STRING(250),
-      allowNull: true
-    },
-    bill_name: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    nit: {
-      type: DataTypes.STRING(25),
-      allowNull: true
-    },
-    email: {
-      type: DataTypes.STRING(45),
-      allowNull: true
-    },
-    office_cel: {
-      type: DataTypes.STRING(45),
-      allowNull: true
-    },
-    residence_cel: {
-      type: DataTypes.STRING(45),
       allowNull: true
     },
     create_date: {
@@ -49,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'Client',
+    tableName: 'Vehicle_Part',
     timestamps: false,
     indexes: [
       {

@@ -14,14 +14,6 @@ module.exports = {
         database    :process.env.MSSQL_DB_SCHEMA,
         host        :process.env.MSSQL_DB_HOST
     }
-    
-
-    /*database:{
-        username    :'root',//'adminsm',
-        password    :'admin201!',//'Z!$fEfLXZfS2',
-        database    :'pay_tbl',
-        host        :'127.0.0.1'//'54.172.236.11'
-    }*/
 }
 
 

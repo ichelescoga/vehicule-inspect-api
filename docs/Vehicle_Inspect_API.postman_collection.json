@@ -1,0 +1,441 @@
+{
+	"info": {
+		"name": "Vehicle Inspect API",
+		"description": "Collection de endpoints para el sistema de inspección vehicular Korea",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/korea/v1"
+		}
+	],
+	"item": [
+		{
+			"name": "Healthcheck",
+			"item": [
+				{
+					"name": "Healthcheck",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/healthcheck",
+							"host": ["{{base_url}}"],
+							"path": ["healthcheck"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Catalog",
+			"item": [
+				{
+					"name": "Get All Vendors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllVendors",
+							"host": ["{{base_url}}"],
+							"path": ["getAllVendors"]
+						}
+					}
+				},
+				{
+					"name": "Create Vendor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AutoParts Korea\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createVendor",
+							"host": ["{{base_url}}"],
+							"path": ["createVendor"]
+						}
+					}
+				},
+				{
+					"name": "Update Vendor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AutoParts Korea Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateVendor/1",
+							"host": ["{{base_url}}"],
+							"path": ["updateVendor", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get All Technicals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllTechnicals",
+							"host": ["{{base_url}}"],
+							"path": ["getAllTechnicals"]
+						}
+					}
+				},
+				{
+					"name": "Create Technical",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Carlos Gómez\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createTechnical",
+							"host": ["{{base_url}}"],
+							"path": ["createTechnical"]
+						}
+					}
+				},
+				{
+					"name": "Update Technical",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Carlos Gómez Jr.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateTechnical/1",
+							"host": ["{{base_url}}"],
+							"path": ["updateTechnical", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Client",
+			"item": [
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllClients",
+							"host": ["{{base_url}}"],
+							"path": ["getAllClients"]
+						}
+					}
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Juan Pérez\",\n  \"address\": \"Calle 123 #45-67\",\n  \"bill_name\": \"Juan Pérez SA\",\n  \"nit\": \"900123456\",\n  \"email\": \"juan@email.com\",\n  \"office_cel\": \"3001234567\",\n  \"residence_cel\": \"6011234567\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createClient",
+							"host": ["{{base_url}}"],
+							"path": ["createClient"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Vehicle",
+			"item": [
+				{
+					"name": "Get All Vehicles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllVehicles",
+							"host": ["{{base_url}}"],
+							"path": ["getAllVehicles"]
+						}
+					}
+				},
+				{
+					"name": "Get All Vehicule Brands",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllVehiculeBrands",
+							"host": ["{{base_url}}"],
+							"path": ["getAllVehiculeBrands"]
+						}
+					}
+				},
+				{
+					"name": "Get All Vehicule Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllVehiculeType",
+							"host": ["{{base_url}}"],
+							"path": ["getAllVehiculeType"]
+						}
+					}
+				},
+				{
+					"name": "Get All Vehicle Parts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllVehicleParts",
+							"host": ["{{base_url}}"],
+							"path": ["getAllVehicleParts"]
+						}
+					}
+				},
+				{
+					"name": "Create Vehicule Brand",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Hyundai\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createVehiculeBrand",
+							"host": ["{{base_url}}"],
+							"path": ["createVehiculeBrand"]
+						}
+					}
+				},
+				{
+					"name": "Create Vehicule Type",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SUV\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createVehiculeType",
+							"host": ["{{base_url}}"],
+							"path": ["createVehiculeType"]
+						}
+					}
+				},
+				{
+					"name": "Create Vehicle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"model\": 2024,\n  \"plate_id\": \"ABC123\",\n  \"color\": 1,\n  \"vehicule_type_id\": 1,\n  \"vehicule_brand_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createVehicle",
+							"host": ["{{base_url}}"],
+							"path": ["createVehicle"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Service",
+			"item": [
+				{
+					"name": "Get All Services",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllServices",
+							"host": ["{{base_url}}"],
+							"path": ["getAllServices"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"number_pass\": 1,\n  \"order_date\": \"2026-03-10\",\n  \"payment_type\": 1,\n  \"delivery_date\": \"2026-03-15\",\n  \"client_id\": 1,\n  \"vendor_id\": 1,\n  \"vehicule_id\": 1,\n  \"technical_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createOrder",
+							"host": ["{{base_url}}"],
+							"path": ["createOrder"]
+						}
+					}
+				},
+				{
+					"name": "Get Order By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getOrderById/1",
+							"host": ["{{base_url}}"],
+							"path": ["getOrderById", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getAllOrders",
+							"host": ["{{base_url}}"],
+							"path": ["getAllOrders"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/updateOrderStatus/1",
+							"host": ["{{base_url}}"],
+							"path": ["updateOrderStatus", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Orders By Client",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/getOrdersByClient/1",
+							"host": ["{{base_url}}"],
+							"path": ["getOrdersByClient", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Order Vehicule Part",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": 1,\n  \"vehicule_part_id\": 3,\n  \"url\": \"https://storage.example.com/photo_cofre.jpg\",\n  \"asset_type_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createOrderVehiculePart",
+							"host": ["{{base_url}}"],
+							"path": ["createOrderVehiculePart"]
+						}
+					}
+				},
+				{
+					"name": "Create Order Service Option",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": 1,\n  \"service_option_id\": 2,\n  \"price\": 75000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/createOrderServiceOption",
+							"host": ["{{base_url}}"],
+							"path": ["createOrderServiceOption"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

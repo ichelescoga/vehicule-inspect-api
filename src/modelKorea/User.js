@@ -1,32 +1,32 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Service_Type', {
+  return sequelize.define('User', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    name: {
-      type: DataTypes.STRING(100),
+    username: {
+      type: DataTypes.STRING(45),
       allowNull: false
     },
-    create_date: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    update_date: {
-      type: DataTypes.DATE,
-      allowNull: true
+    email: {
+      type: DataTypes.STRING(45),
+      allowNull: false
     },
     status: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    last_login: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'Service_Type',
-    timestamps: false,
+    tableName: 'User',
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
