@@ -175,10 +175,39 @@ exports.updateOrder = async (req, res, next) => {
 
 exports.updateOrderStatus = async (req, res, next) => {
     try{
-        let result = await orderRepository.updateOrderStatus(req.params.id, req.body.status)
+        let result = await orderRepository.updateOrderStatus(req.params.id, req.body.status, req.body.description)
         console.log(result)
         if (!result) {
             console.info("Order status was not updated")
+            res.json({
+                success: false,
+                payload: result
+            })
+            return
+        }
+
+        res.json({
+            success: true,
+            payload: result
+        })
+    }
+    catch(error){
+        console.log(error)
+        console.info(error)
+        res.json({
+            success: false,
+            payload: error.message || error
+        })
+        return
+    }
+}
+
+exports.getOrderStatusLog = async (req, res, next) => {
+    try{
+        let result = await orderRepository.getOrderStatusLog(req.params.orderId)
+        console.log(result)
+        if (!result) {
+            console.info("Order Status Log was empty")
             res.json({
                 success: false,
                 payload: result

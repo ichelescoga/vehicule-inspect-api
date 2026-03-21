@@ -291,9 +291,27 @@ Actualiza los datos completos de una orden existente (excepto el estado) y regis
 
 ---
 
+## Referencia de Estados de Orden
+
+| Valor | Estado | Descripción |
+|-------|--------|-------------|
+| 1 | Recepcion | Orden recibida |
+| 2 | Diagnostico | En diagnóstico |
+| 3 | Autorizacion | Pendiente de autorización |
+| 4 | Compra de Repuestos | Comprando repuestos |
+| 5 | En Proceso | Trabajo en proceso |
+| 6 | Control de Calidad | Revisión de calidad |
+
+> Al crear una orden, se asigna automáticamente el status `1` (Recepcion) y se crea un registro en `Order_Status_Log` con `start_date = now`.
+
+---
+
 ## PUT `/updateOrderStatus/:id`
 
-Actualiza el estado de una orden y registra la fecha de actualización.
+Actualiza el estado de una orden. **Solo permite cambios secuenciales** (+1 o -1 respecto al status actual). Internamente cierra el log del status actual (asigna `end_date = now`) y crea un nuevo registro en `Order_Status_Log` con el nuevo status y `start_date = now`.
+
+### Regla de negocio
+> El status solo puede avanzar o retroceder **un paso a la vez**. Por ejemplo, si el status actual es 3 (Autorizacion), solo se puede cambiar a 2 (Diagnostico) o 4 (Compra de Repuestos). Intentar saltar estados retorna `{ success: false }` con mensaje de error.
 
 ### Request
 
@@ -305,7 +323,7 @@ Actualiza el estado de una orden y registra la fecha de actualización.
 **Body:**
 | Campo | Tipo | Requerido | Descripción |
 |-------|------|-----------|-------------|
-| status | Integer | Sí | Nuevo estado de la orden |
+| status | Integer | Sí | Nuevo estado de la orden (1-6, ver referencia). Debe ser ±1 del status actual. |
 
 ### Request Example
 ```json
@@ -314,7 +332,7 @@ Actualiza el estado de una orden y registra la fecha de actualización.
 }
 ```
 
-### Response (200)
+### Response (200 - Éxito)
 ```json
 {
   "success": true,
@@ -322,6 +340,60 @@ Actualiza el estado de una orden y registra la fecha de actualización.
 }
 ```
 > El array indica el número de filas afectadas.
+
+### Response (200 - Error de validación)
+```json
+{
+  "success": false,
+  "payload": "Status can only change one step at a time. Current: 1, Requested: 3"
+}
+```
+
+### Comportamiento interno
+1. Valida que el nuevo status sea exactamente `current ± 1`, si no lanza error
+2. Busca el `Order_Status_Log` activo (donde `end_date IS NULL`) para la orden
+3. Cierra el log actual asignando `end_date = NOW()`
+4. Crea nuevo `Order_Status_Log` con `status = nuevo_status`, `start_date = NOW()`, `end_date = NULL`
+5. Actualiza `Order_Header.status` con el nuevo valor
+
+---
+
+## GET `/getOrderStatusLog/:orderId`
+
+Obtiene el historial de cambios de estado de una orden, ordenado por fecha de inicio ascendente. Permite ver cuánto tiempo estuvo la orden en cada status.
+
+### Request
+
+**Params:**
+| Param | Tipo | Descripción |
+|-------|------|-------------|
+| orderId | Integer | ID de la orden |
+
+### Response (200)
+```json
+{
+  "success": true,
+  "payload": [
+    {
+      "id": 1,
+      "order_id": 1,
+      "status": 1,
+      "start_date": "2026-03-10T12:00:00.000Z",
+      "end_date": "2026-03-10T14:30:00.000Z",
+      "create_date": "2026-03-10T12:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "order_id": 1,
+      "status": 2,
+      "start_date": "2026-03-10T14:30:00.000Z",
+      "end_date": null,
+      "create_date": "2026-03-10T14:30:00.000Z"
+    }
+  ]
+}
+```
+> El registro con `end_date: null` es el status activo actual.
 
 ---
 

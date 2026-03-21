@@ -5,6 +5,10 @@ const clientController = require('../controller/client.controller')
 const vehicleController = require('../controller/vehicle.controller')
 const serviceController = require('../controller/service.controller')
 const catalogController = require('../controller/catalog.controller')
+const uploadController = require('../controller/upload.controller')
+const authController = require('../controller/auth.controller')
+const userController = require('../controller/user.controller')
+const upload = require('../components/multerConfig')
 const security = require('../src/utils/security')
 
 function verfiyToken(req, res, next){
@@ -37,6 +41,38 @@ function authentication(req,res,next){
     }
 }
 
+
+// Auth
+router.post('/login', authController.login)
+router.post('/changePassword', authController.changePassword)
+router.post('/verifyToken', authController.verifyToken)
+
+// User Management (public)
+router.post('/requestAccount', userController.requestAccount)
+router.post('/requestPasswordReset', userController.requestPasswordReset)
+
+// User Management (admin)
+router.get('/getPendingRequests', userController.getPendingRequests)
+router.get('/getPendingRequestsCount', userController.getPendingRequestsCount)
+router.put('/approveAccount/:id', userController.approveAccount)
+router.put('/rejectAccount/:id', userController.rejectAccount)
+router.put('/approvePasswordReset/:id', userController.approvePasswordReset)
+router.put('/rejectPasswordReset/:id', userController.rejectPasswordReset)
+router.get('/getAllUsers', userController.getAllUsers)
+router.put('/updateUser/:id', userController.updateUser)
+
+// Role Management
+router.get('/getAllRoles', userController.getAllRoles)
+router.post('/createRole', userController.createRole)
+router.put('/updateRole/:id', userController.updateRole)
+router.delete('/deleteRole/:id', userController.deleteRole)
+router.post('/assignRole', userController.assignRole)
+router.delete('/removeRole/:userId/:rolId', userController.removeRole)
+
+// Role Permissions
+router.get('/getPermissionsByRole/:rolId', userController.getPermissionsByRole)
+router.put('/updateRolePermissions/:rolId', userController.updateRolePermissions)
+router.get('/getPermissionsByUser/:userId', userController.getPermissionsByUser)
 
 router.get('/healthcheck', (req, res) => {
     res.json({succeded: true, payload: 'HealthCheck ok'})
@@ -73,8 +109,25 @@ router.get('/searchClientByName/:name', clientController.searchClientByName)
 router.post('/createClient', clientController.createClient)
 router.put('/updateClient/:id', clientController.updateClient)
 
+// Service Type
+router.get('/getAllServiceTypes', serviceController.getAllServiceTypes)
+router.post('/createServiceType', serviceController.createServiceType)
+router.put('/updateServiceType/:id', serviceController.updateServiceType)
+
 // Service
 router.get('/getAllServices', serviceController.getAllServices)
+router.get('/getServicesByType/:serviceTypeId', serviceController.getServicesByType)
+router.post('/createService', serviceController.createService)
+router.put('/updateService/:id', serviceController.updateService)
+
+// Service Option
+router.get('/getServiceOptions/:serviceId', serviceController.getServiceOptions)
+router.post('/createServiceOption', serviceController.createServiceOption)
+router.put('/updateServiceOption/:id', serviceController.updateServiceOption)
+
+// Service Option Assign (Order)
+router.get('/getOrderServiceOptions/:orderId', serviceController.getOrderServiceOptions)
+router.delete('/deleteOrderServiceOption/:id', serviceController.deleteOrderServiceOption)
 
 // Order
 router.get('/searchOrders', orderController.searchOrders)
@@ -83,8 +136,14 @@ router.get('/getOrderById/:id', orderController.getOrderById)
 router.get('/getAllOrders', orderController.getAllOrders)
 router.put('/updateOrder/:id', orderController.updateOrder)
 router.put('/updateOrderStatus/:id', orderController.updateOrderStatus)
+router.get('/getOrderStatusLog/:orderId', orderController.getOrderStatusLog)
 router.get('/getOrdersByClient/:clientId', orderController.getOrdersByClient)
 router.post('/createOrderVehiculePart', orderController.createOrderVehiculePart)
 router.post('/createOrderServiceOption', orderController.createOrderServiceOption)
+
+// Upload / Inspection Files
+router.post('/uploadInspectionFile', upload.single('file'), uploadController.uploadInspectionFile)
+router.get('/getInspectionFiles/:orderId', uploadController.getInspectionFiles)
+router.put('/deleteInspectionFile/:id', uploadController.deleteInspectionFile)
 
 module.exports = router

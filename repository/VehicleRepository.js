@@ -23,6 +23,7 @@ let VehicleRepository = function(){
             color: params.color,
             vehicule_type_id: params.vehicule_type_id,
             vehicule_brand_id: params.vehicule_brand_id,
+            transmision_type: params.transmision_type,
             create_date: new Date(),
             status: 1
         })
@@ -81,6 +82,7 @@ let VehicleRepository = function(){
             color: params.color,
             vehicule_type_id: params.vehicule_type_id,
             vehicule_brand_id: params.vehicule_brand_id,
+            transmision_type: params.transmision_type,
             update_date: new Date()
         }, { where: { id: id } })
     }

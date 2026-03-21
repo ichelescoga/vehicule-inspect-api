@@ -1,38 +1,44 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('User_Rol_Assign', {
+  return sequelize.define('Order_Status_Log', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    user_id: {
+    order_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'User',
-        key: 'id'
-      }
-    },
-    rol_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'User_Rol',
+        model: 'Order_Header',
         key: 'id'
       }
     },
     status: {
       type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    start_date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    end_date: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    create_date: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'User_Rol_Assign',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    tableName: 'Order_Status_Log',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -43,17 +49,10 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "user_user_rol_assign_idx",
+        name: "fk_status_log_order",
         using: "BTREE",
         fields: [
-          { name: "user_id" },
-        ]
-      },
-      {
-        name: "rol_user_rol_assign_idx",
-        using: "BTREE",
-        fields: [
-          { name: "rol_id" },
+          { name: "order_id" },
         ]
       },
     ]

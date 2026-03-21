@@ -26,6 +26,7 @@ Retorna todos los vehículos activos (status = 1) con su marca y tipo incluidos.
       "create_date": "2026-03-10T12:00:00.000Z",
       "update_date": null,
       "status": 1,
+      "transmision_type": 1,
       "vehicule_brand": { "id": 1, "name": "Hyundai" },
       "vehicule_type": { "id": 1, "name": "Sedan" }
     },
@@ -40,6 +41,7 @@ Retorna todos los vehículos activos (status = 1) con su marca y tipo incluidos.
       "create_date": "2026-03-09T10:00:00.000Z",
       "update_date": null,
       "status": 1,
+      "transmision_type": 2,
       "vehicule_brand": { "id": 2, "name": "Kia" },
       "vehicule_type": { "id": 2, "name": "SUV" }
     }
@@ -130,12 +132,15 @@ Busca vehiculos activos cuya placa coincida parcialmente con el valor proporcion
       "create_date": "2026-03-10T12:00:00.000Z",
       "update_date": null,
       "status": 1,
+      "transmision_type": 1,
       "vehicule_brand": { "id": 1, "name": "Hyundai" },
       "vehicule_type": { "id": 1, "name": "Sedan" }
     }
   ]
 }
 ```
+
+> **transmision_type:** 1 = Automática, 2 = Mecánica
 
 ---
 
@@ -235,6 +240,7 @@ Crea un nuevo vehículo.
 | color | String (45) | No | Color del vehículo |
 | vehicule_type_id | Integer | No | ID del tipo de vehículo |
 | vehicule_brand_id | Integer | No | ID de la marca del vehículo |
+| transmision_type | Integer | No | Tipo de transmisión (1 = Automática, 2 = Mecánica) |
 
 ### Request Example
 ```json
@@ -244,7 +250,8 @@ Crea un nuevo vehículo.
   "plate_id": "ABC123",
   "color": "Rojo",
   "vehicule_type_id": 1,
-  "vehicule_brand_id": 1
+  "vehicule_brand_id": 1,
+  "transmision_type": 1
 }
 ```
 
@@ -260,6 +267,7 @@ Crea un nuevo vehículo.
     "color": "Rojo",
     "vehicule_type_id": 1,
     "vehicule_brand_id": 1,
+    "transmision_type": 1,
     "create_date": "2026-03-10T12:00:00.000Z",
     "status": 1
   }
@@ -293,6 +301,7 @@ Actualiza los datos de un vehículo existente y registra la fecha de actualizaci
 | color | String (45) | No | Color del vehículo |
 | vehicule_type_id | Integer | No | ID del tipo de vehículo |
 | vehicule_brand_id | Integer | No | ID de la marca del vehículo |
+| transmision_type | Integer | No | Tipo de transmisión (1 = Automática, 2 = Mecánica) |
 
 ### Request Example
 ```json
@@ -302,7 +311,8 @@ Actualiza los datos de un vehículo existente y registra la fecha de actualizaci
   "plate_id": "ABC123",
   "color": "Azul",
   "vehicule_type_id": 1,
-  "vehicule_brand_id": 1
+  "vehicule_brand_id": 1,
+  "transmision_type": 2
 }
 ```
 

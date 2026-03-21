@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('User_Rol_Assign', {
+  return sequelize.define('Password_Reset_Request', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -15,24 +15,23 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
-    rol_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'User_Rol',
-        key: 'id'
-      }
-    },
     status: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    updated_at: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'User_Rol_Assign',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    tableName: 'Password_Reset_Request',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -40,20 +39,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "user_user_rol_assign_idx",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
-        ]
-      },
-      {
-        name: "rol_user_rol_assign_idx",
-        using: "BTREE",
-        fields: [
-          { name: "rol_id" },
         ]
       },
     ]

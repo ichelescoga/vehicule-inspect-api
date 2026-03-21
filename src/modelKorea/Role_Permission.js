@@ -1,19 +1,11 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('User_Rol_Assign', {
+  return sequelize.define('Role_Permission', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'User',
-        key: 'id'
-      }
     },
     rol_id: {
       type: DataTypes.INTEGER,
@@ -23,16 +15,19 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    menu_key: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
     status: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      defaultValue: 1
     }
   }, {
     sequelize,
-    tableName: 'User_Rol_Assign',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    tableName: 'Role_Permission',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -43,14 +38,7 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "user_user_rol_assign_idx",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
-        ]
-      },
-      {
-        name: "rol_user_rol_assign_idx",
+        name: "rolePermissionRol_idx",
         using: "BTREE",
         fields: [
           { name: "rol_id" },

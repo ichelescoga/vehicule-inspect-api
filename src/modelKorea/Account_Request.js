@@ -1,31 +1,24 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('User', {
+  return sequelize.define('Account_Request', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    username: {
-      type: DataTypes.STRING(45),
+    name: {
+      type: DataTypes.STRING(100),
       allowNull: false
     },
     email: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(100),
       allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: true
     },
     status: {
       type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    last_login: {
-      type: DataTypes.DATE,
-      allowNull: true
+      allowNull: false,
+      defaultValue: 1
     },
     created_at: {
       type: DataTypes.DATE,
@@ -37,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     sequelize,
-    tableName: 'User',
+    tableName: 'Account_Request',
     timestamps: false,
     indexes: [
       {

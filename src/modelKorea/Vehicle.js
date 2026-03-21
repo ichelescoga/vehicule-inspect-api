@@ -50,6 +50,10 @@ module.exports = function(sequelize, DataTypes) {
     status: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    transmision_type: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

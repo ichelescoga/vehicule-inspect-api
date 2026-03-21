@@ -21,6 +21,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 | `controller/client.controller.js` | Clientes | Client |
 | `controller/vehicle.controller.js` | Vehículos | Vehicle, Vehicle_Brand, Vehicle_Type, Vehicle_Part |
 | `controller/service.controller.js` | Servicios | Service, Service_Option |
+| `controller/upload.controller.js` | Inspección | Inspection_File (upload S3 + CRUD) |
 | `controller/catalog.controller.js` | Catálogos | Vendor, Technical |
 
 ### Repositories (by domain)
@@ -38,7 +39,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `components/conn_sqlz.js` — Sequelize connection instance
 - `.env` — Environment variables (MYSQL_DB_*, EXPOSED_PORT)
 
-## Database Tables (16)
+## Database Tables (18)
 | Entity | Table | Description |
 |--------|-------|-------------|
 | Order_Header | Order_Header | Orden de inspección (FK: client, vendor, vehicle, technical) |
@@ -54,6 +55,8 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 | Service_Type | Service_Type | Tipos de servicio |
 | Technical | Technical | Técnicos |
 | Vendor | Vendor | Proveedores |
+| Inspection_File | Inspection_File | Archivos de inspección S3 (FK: order, vehicle_part) — original_name, stored_name, file_type, s3_path |
+| Order_Status_Log | Order_Status_Log | Log de cambios de estado por orden (FK: order) — start_date, end_date, status |
 | User | User | Usuarios (timestamps: true) |
 | User_Rol | User_Rol | Roles de usuario |
 | User_Rol_Assign | User_Rol_Assign | Asignación usuario-rol (timestamps: true) |
@@ -65,6 +68,12 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - Repository uses module pattern (IIFE) exporting functions
 - Controller functions: `async (req, res, next)` with try/catch
 - Search endpoints use Sequelize `Op.like` with `%query%` for partial matching
+
+## Key Services
+| File | Description |
+|------|-------------|
+| `services/s3Service.js` | Upload de archivos a AWS S3 (bucket: bkt-korea, ruta: KoreaInspect/{orderId}/{uuid}.ext) |
+| `components/multerConfig.js` | Configuración de multer (memory storage, 50MB max, filtro de tipos) |
 
 ## API Endpoints (base: `/korea/v1`)
 
@@ -99,8 +108,25 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `POST /createClient` — Crear cliente
 - `PUT /updateClient/:id` — Actualizar cliente
 
+### Service Type
+- `GET /getAllServiceTypes` — Listar tipos de servicio activos
+- `POST /createServiceType` — Crear tipo de servicio
+- `PUT /updateServiceType/:id` — Actualizar tipo de servicio
+
 ### Service
-- `GET /getAllServices` — Listar servicios con opciones
+- `GET /getAllServices` — Listar servicios con opciones y tipo
+- `GET /getServicesByType/:serviceTypeId` — Listar servicios por tipo
+- `POST /createService` — Crear servicio (body: name, service_type_id)
+- `PUT /updateService/:id` — Actualizar servicio
+
+### Service Option
+- `GET /getServiceOptions/:serviceId` — Listar opciones de un servicio
+- `POST /createServiceOption` — Crear opción de servicio (body: name, service_id)
+- `PUT /updateServiceOption/:id` — Actualizar opción de servicio
+
+### Service Option Assign (Order)
+- `GET /getOrderServiceOptions/:orderId` — Opciones asignadas a una orden con precios
+- `DELETE /deleteOrderServiceOption/:id` — Eliminar asignación de opción a orden
 
 ### Order
 - `GET /searchOrders` — Buscar órdenes con filtros opcionales (number_pass, client_nit, client_name, plate_id, vendor_name, technical_name)
@@ -110,8 +136,14 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `GET /getOrderById/:id` — Orden con todas sus relaciones
 - `GET /getAllOrders` — Listar órdenes
 - `PUT /updateOrder/:id` — Actualizar orden completa
-- `PUT /updateOrderStatus/:id` — Actualizar estado de orden
+- `PUT /updateOrderStatus/:id` — Actualizar estado de orden (solo ±1 secuencial, cierra log actual, crea nuevo log)
+- `GET /getOrderStatusLog/:orderId` — Historial de cambios de estado de una orden
 - `GET /getOrdersByClient/:clientId` — Órdenes por cliente
+
+### Inspection (S3 Upload)
+- `POST /uploadInspectionFile` — Subir foto/video de inspección a S3 (multipart/form-data)
+- `GET /getInspectionFiles/:orderId` — Listar archivos de inspección de una orden (solo status=1)
+- `PUT /deleteInspectionFile/:id` — Soft delete de archivo de inspección (status 1→0)
 
 ## Documentation
 - `docs/order/ORDER_API.md` — Documentación de endpoints de órdenes
@@ -119,6 +151,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `docs/vehicle/VEHICLE_API.md` — Documentación de endpoints de vehículos
 - `docs/service/SERVICE_API.md` — Documentación de endpoints de servicios
 - `docs/catalog/CATALOG_API.md` — Documentación de endpoints de catálogos
+- `docs/inspection/INSPECTION_API.md` — Documentación de endpoints de inspección (S3 upload)
 - `docs/Vehicle_Inspect_API.postman_collection.json` — Postman collection
 
 ## Frontend Companion

@@ -6,7 +6,7 @@ let models = initModels(sequelize);
 let OrderRepository = function(){
 
     let createOrder = async(params) => {
-        return await models.Order_Header.create({
+        const order = await models.Order_Header.create({
             number_pass: params.number_pass,
             order_date: params.order_date || new Date(),
             payment_type: params.payment_type,
@@ -18,6 +18,14 @@ let OrderRepository = function(){
             create_date: new Date(),
             status: 1
         })
+        // Create initial status log (Recepción)
+        await models.Order_Status_Log.create({
+            order_id: order.id,
+            status: 1,
+            start_date: new Date(),
+            create_date: new Date()
+        })
+        return order
     }
 
     let getOrderById = async(id) => {
@@ -124,11 +132,41 @@ let OrderRepository = function(){
         }, { where: { id: id } })
     }
 
-    let updateOrderStatus = async(id, status) => {
+    let updateOrderStatus = async(id, status, description) => {
+        // Validate sequential status change (only +1 or -1)
+        const order = await models.Order_Header.findByPk(id)
+        if (!order) throw new Error('Order not found')
+        const currentStatus = order.status
+        const diff = status - currentStatus
+        if (diff !== 1 && diff !== -1) {
+            throw new Error(`Status can only change one step at a time. Current: ${currentStatus}, Requested: ${status}`)
+        }
+
+        const now = new Date()
+        // Close current status log with description
+        await models.Order_Status_Log.update(
+            { end_date: now, description: description || null },
+            { where: { order_id: id, end_date: null } }
+        )
+        // Create new status log (without description)
+        await models.Order_Status_Log.create({
+            order_id: id,
+            status: status,
+            start_date: now,
+            create_date: now
+        })
+        // Update order header
         return await models.Order_Header.update(
-            { status: status, update_date: new Date() },
+            { status: status, update_date: now },
             { where: { id: id } }
         )
+    }
+
+    let getOrderStatusLog = async(orderId) => {
+        return await models.Order_Status_Log.findAll({
+            where: { order_id: orderId },
+            order: [['start_date', 'ASC']]
+        })
     }
 
     let getOrdersByClient = async(clientId) => {
@@ -169,6 +207,7 @@ let OrderRepository = function(){
         searchOrders,
         updateOrder,
         updateOrderStatus,
+        getOrderStatusLog,
         getOrdersByClient,
         createOrderVehiculePart,
         createOrderServiceOption

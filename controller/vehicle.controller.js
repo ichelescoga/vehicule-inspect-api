@@ -66,7 +66,8 @@ exports.createVehicle = async (req, res, next) => {
             plate_id: req.body.plate_id,
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
-            vehicule_brand_id: req.body.vehicule_brand_id
+            vehicule_brand_id: req.body.vehicule_brand_id,
+            transmision_type: req.body.transmision_type
         }
         let result = await vehicleRepository.createVehicle(params)
         console.log(result)
@@ -190,7 +191,8 @@ exports.updateVehicle = async (req, res, next) => {
             plate_id: req.body.plate_id,
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
-            vehicule_brand_id: req.body.vehicule_brand_id
+            vehicule_brand_id: req.body.vehicule_brand_id,
+            transmision_type: req.body.transmision_type
         }
         let result = await vehicleRepository.updateVehicle(req.params.id, params)
         console.log(result)
