@@ -1,4 +1,5 @@
 const sequelize = require('../components/conn_sqlz');
+const { Op } = require('sequelize');
 let initModels = require("../src/modelKorea/init-models");
 let models = initModels(sequelize);
 
@@ -114,7 +115,11 @@ let ServiceRepository = function(){
                 as: 'service_option',
                 include: [{
                     model: models.Service,
-                    as: 'service'
+                    as: 'service',
+                    include: [{
+                        model: models.Service_Type,
+                        as: 'service_type'
+                    }]
                 }]
             }]
         })
@@ -124,6 +129,73 @@ let ServiceRepository = function(){
         return await models.Service_Option_Assign.destroy({
             where: { id }
         })
+    }
+
+    let updateOrderServiceOption = async(id, params) => {
+        return await models.Service_Option_Assign.update({
+            price: params.price,
+            quantity: params.quantity,
+            discount: params.discount
+        }, { where: { id } })
+    }
+
+    let searchServices = async(query) => {
+        const like = { [Op.like]: `%${query}%` };
+        return await models.Service_Option.findAll({
+            where: { status: 1, name: like },
+            include: [{
+                model: models.Service,
+                as: 'service',
+                where: { status: 1 },
+                include: [{
+                    model: models.Service_Type,
+                    as: 'service_type',
+                    where: { status: 1 }
+                }]
+            }],
+            limit: 20
+        }).then(async (optionResults) => {
+            // Also search by service name
+            const serviceResults = await models.Service_Option.findAll({
+                where: { status: 1 },
+                include: [{
+                    model: models.Service,
+                    as: 'service',
+                    where: { status: 1, name: like },
+                    include: [{
+                        model: models.Service_Type,
+                        as: 'service_type',
+                        where: { status: 1 }
+                    }]
+                }],
+                limit: 20
+            });
+            // Also search by service type name
+            const typeResults = await models.Service_Option.findAll({
+                where: { status: 1 },
+                include: [{
+                    model: models.Service,
+                    as: 'service',
+                    where: { status: 1 },
+                    include: [{
+                        model: models.Service_Type,
+                        as: 'service_type',
+                        where: { status: 1, name: like }
+                    }]
+                }],
+                limit: 20
+            });
+            // Merge and deduplicate by option id
+            const seen = new Set();
+            const merged = [];
+            for (const item of [...optionResults, ...serviceResults, ...typeResults]) {
+                if (!seen.has(item.id)) {
+                    seen.add(item.id);
+                    merged.push(item);
+                }
+            }
+            return merged;
+        });
     }
 
     return {
@@ -138,7 +210,9 @@ let ServiceRepository = function(){
         createServiceOption,
         updateServiceOption,
         getOrderServiceOptions,
-        deleteOrderServiceOption
+        deleteOrderServiceOption,
+        updateOrderServiceOption,
+        searchServices
     }
 
 }

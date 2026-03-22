@@ -60,7 +60,8 @@ let OrderRepository = function(){
                 { model: models.Client, as: 'client' },
                 { model: models.Vendor, as: 'vendor' },
                 { model: models.Vehicle, as: 'vehicule' },
-                { model: models.Technical, as: 'technical' }
+                { model: models.Technical, as: 'technical' },
+                { model: models.Service_Option_Assign, as: 'Service_Option_Assigns', attributes: ['id'] }
             ],
             order: [['create_date', 'DESC']]
         })
@@ -112,7 +113,8 @@ let OrderRepository = function(){
                 { model: models.Client, as: 'client', where: hasClientFilter ? clientWhere : undefined, required: hasClientFilter },
                 { model: models.Vendor, as: 'vendor', where: hasVendorFilter ? vendorWhere : undefined, required: hasVendorFilter },
                 { model: models.Vehicle, as: 'vehicule', where: hasVehicleFilter ? vehicleWhere : undefined, required: hasVehicleFilter },
-                { model: models.Technical, as: 'technical', where: hasTechnicalFilter ? technicalWhere : undefined, required: hasTechnicalFilter }
+                { model: models.Technical, as: 'technical', where: hasTechnicalFilter ? technicalWhere : undefined, required: hasTechnicalFilter },
+                { model: models.Service_Option_Assign, as: 'Service_Option_Assigns', attributes: ['id'] }
             ],
             order: [['create_date', 'DESC']]
         })
@@ -196,7 +198,9 @@ let OrderRepository = function(){
         return await models.Service_Option_Assign.create({
             order_id: params.order_id,
             service_option_id: params.service_option_id,
-            price: params.price
+            price: params.price,
+            quantity: params.quantity || 1,
+            discount: params.discount || 0
         })
     }
 

@@ -20,6 +20,7 @@ var _Vendor = require("./Vendor");
 var _Account_Request = require("./Account_Request");
 var _Password_Reset_Request = require("./Password_Reset_Request");
 var _Role_Permission = require("./Role_Permission");
+var _Order_Signature = require("./Order_Signature");
 
 function initModels(sequelize) {
   var Client = _Client(sequelize, DataTypes);
@@ -43,6 +44,7 @@ function initModels(sequelize) {
   var Account_Request = _Account_Request(sequelize, DataTypes);
   var Password_Reset_Request = _Password_Reset_Request(sequelize, DataTypes);
   var Role_Permission = _Role_Permission(sequelize, DataTypes);
+  var Order_Signature = _Order_Signature(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -82,6 +84,8 @@ function initModels(sequelize) {
   User.hasMany(Password_Reset_Request, { as: "Password_Reset_Requests", foreignKey: "user_id"});
   Role_Permission.belongsTo(User_Rol, { as: "rol", foreignKey: "rol_id"});
   User_Rol.hasMany(Role_Permission, { as: "Role_Permissions", foreignKey: "rol_id"});
+  Order_Signature.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_Signature, { as: "Order_Signatures", foreignKey: "order_id"});
 
   return {
     Client,
@@ -105,6 +109,7 @@ function initModels(sequelize) {
     Account_Request,
     Password_Reset_Request,
     Role_Permission,
+    Order_Signature,
   };
 }
 module.exports = initModels;

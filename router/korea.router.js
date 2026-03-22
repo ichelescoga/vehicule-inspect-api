@@ -128,6 +128,8 @@ router.put('/updateServiceOption/:id', serviceController.updateServiceOption)
 // Service Option Assign (Order)
 router.get('/getOrderServiceOptions/:orderId', serviceController.getOrderServiceOptions)
 router.delete('/deleteOrderServiceOption/:id', serviceController.deleteOrderServiceOption)
+router.put('/updateOrderServiceOption/:id', serviceController.updateOrderServiceOption)
+router.get('/searchServices/:query', serviceController.searchServices)
 
 // Order
 router.get('/searchOrders', orderController.searchOrders)
@@ -145,5 +147,9 @@ router.post('/createOrderServiceOption', orderController.createOrderServiceOptio
 router.post('/uploadInspectionFile', upload.single('file'), uploadController.uploadInspectionFile)
 router.get('/getInspectionFiles/:orderId', uploadController.getInspectionFiles)
 router.put('/deleteInspectionFile/:id', uploadController.deleteInspectionFile)
+
+// Signature
+router.post('/uploadSignature', upload.single('file'), uploadController.uploadSignature)
+router.get('/getOrderSignature/:orderId', uploadController.getOrderSignature)
 
 module.exports = router

@@ -138,3 +138,27 @@ exports.deleteOrderServiceOption = async (req, res, next) => {
         res.json({ success: false, payload: error.message || error })
     }
 }
+
+exports.updateOrderServiceOption = async (req, res, next) => {
+    try {
+        let result = await serviceRepository.updateOrderServiceOption(req.params.id, {
+            price: req.body.price,
+            quantity: req.body.quantity,
+            discount: req.body.discount
+        })
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.searchServices = async (req, res, next) => {
+    try {
+        let result = await serviceRepository.searchServices(req.params.query)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}

@@ -300,7 +300,9 @@ exports.createOrderServiceOption = async (req, res, next) => {
         let params = {
             order_id: req.body.order_id,
             service_option_id: req.body.service_option_id,
-            price: req.body.price
+            price: req.body.price,
+            quantity: req.body.quantity,
+            discount: req.body.discount
         }
         let result = await orderRepository.createOrderServiceOption(params)
         console.log(result)

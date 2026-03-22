@@ -19,6 +19,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DECIMAL(10,0),
       allowNull: true
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
+    discount: {
+      type: DataTypes.DECIMAL(5,2),
+      allowNull: false,
+      defaultValue: 0.00
+    },
     order_id: {
       type: DataTypes.INTEGER,
       allowNull: true,

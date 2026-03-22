@@ -21,7 +21,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 | `controller/client.controller.js` | Clientes | Client |
 | `controller/vehicle.controller.js` | Vehículos | Vehicle, Vehicle_Brand, Vehicle_Type, Vehicle_Part |
 | `controller/service.controller.js` | Servicios | Service, Service_Option |
-| `controller/upload.controller.js` | Inspección | Inspection_File (upload S3 + CRUD) |
+| `controller/upload.controller.js` | Inspección + Firma | Inspection_File (upload S3 + CRUD), Order_Signature (firma cliente) |
 | `controller/catalog.controller.js` | Catálogos | Vendor, Technical |
 
 ### Repositories (by domain)
@@ -44,7 +44,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 |--------|-------|-------------|
 | Order_Header | Order_Header | Orden de inspección (FK: client, vendor, vehicle, technical) |
 | Order_Vehicule_Part | Order_Vehicule_Part | Partes inspeccionadas por orden (FK: order, vehicle_part) |
-| Service_Option_Assign | Service_Option_Assign | Opciones de servicio asignadas a orden |
+| Service_Option_Assign | Service_Option_Assign | Opciones de servicio asignadas a orden (price, quantity, discount) |
 | Client | Client | Clientes |
 | Vehicle | Vehicle | Vehículos (FK: brand, type) |
 | Vehicle_Brand | Vehicle_Brand | Marcas de vehículo |
@@ -56,6 +56,7 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 | Technical | Technical | Técnicos |
 | Vendor | Vendor | Proveedores |
 | Inspection_File | Inspection_File | Archivos de inspección S3 (FK: order, vehicle_part) — original_name, stored_name, file_type, s3_path |
+| Order_Signature | Order_Signature | Firma del cliente para autorización (FK: order) — s3_path, stored_name, status |
 | Order_Status_Log | Order_Status_Log | Log de cambios de estado por orden (FK: order) — start_date, end_date, status |
 | User | User | Usuarios (timestamps: true) |
 | User_Rol | User_Rol | Roles de usuario |
@@ -124,15 +125,17 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `POST /createServiceOption` — Crear opción de servicio (body: name, service_id)
 - `PUT /updateServiceOption/:id` — Actualizar opción de servicio
 
-### Service Option Assign (Order)
-- `GET /getOrderServiceOptions/:orderId` — Opciones asignadas a una orden con precios
+### Service Option Assign (Order — Cotización)
+- `GET /getOrderServiceOptions/:orderId` — Opciones asignadas a una orden con precios, cantidad, descuento (incluye service_type nested)
+- `POST /createOrderServiceOption` — Asignar opción a orden (body: order_id, service_option_id, price, quantity, discount)
+- `PUT /updateOrderServiceOption/:id` — Actualizar precio/cantidad/descuento de item
 - `DELETE /deleteOrderServiceOption/:id` — Eliminar asignación de opción a orden
+- `GET /searchServices/:query` — Buscar en los 3 niveles (tipo, servicio, opción) — retorna opciones con jerarquía completa
 
 ### Order
 - `GET /searchOrders` — Buscar órdenes con filtros opcionales (number_pass, client_nit, client_name, plate_id, vendor_name, technical_name)
 - `POST /createOrder` — Crear encabezado de orden
 - `POST /createOrderVehiculePart` — Agregar parte inspeccionada a orden
-- `POST /createOrderServiceOption` — Asignar opción de servicio a orden
 - `GET /getOrderById/:id` — Orden con todas sus relaciones
 - `GET /getAllOrders` — Listar órdenes
 - `PUT /updateOrder/:id` — Actualizar orden completa
@@ -144,6 +147,10 @@ router/ → controller/ → repository/ → src/modelKorea/ → MySQL
 - `POST /uploadInspectionFile` — Subir foto/video de inspección a S3 (multipart/form-data)
 - `GET /getInspectionFiles/:orderId` — Listar archivos de inspección de una orden (solo status=1)
 - `PUT /deleteInspectionFile/:id` — Soft delete de archivo de inspección (status 1→0)
+
+### Signature (Autorización)
+- `POST /uploadSignature` — Subir firma del cliente como PNG a S3 (multipart/form-data, body: order_id)
+- `GET /getOrderSignature/:orderId` — Obtener última firma activa de una orden
 
 ## Documentation
 - `docs/order/ORDER_API.md` — Documentación de endpoints de órdenes
