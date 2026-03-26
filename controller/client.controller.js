@@ -1,4 +1,5 @@
 const clientRepository = require('../repository/ClientRepository')
+const { validateNIT } = require('../src/utils/validators')
 
 exports.getAllClients = async (req, res, next) => {
     try{
@@ -89,6 +90,14 @@ exports.searchClientByName = async (req, res, next) => {
 
 exports.updateClient = async (req, res, next) => {
     try{
+        if (req.body.nit) {
+            const nitValidation = validateNIT(req.body.nit)
+            if (!nitValidation.valid) {
+                res.json({ success: false, payload: nitValidation.message })
+                return
+            }
+        }
+
         let params = {
             name: req.body.name,
             address: req.body.address,
@@ -127,6 +136,14 @@ exports.updateClient = async (req, res, next) => {
 
 exports.createClient = async (req, res, next) => {
     try{
+        if (req.body.nit) {
+            const nitValidation = validateNIT(req.body.nit)
+            if (!nitValidation.valid) {
+                res.json({ success: false, payload: nitValidation.message })
+                return
+            }
+        }
+
         let params = {
             name: req.body.name,
             address: req.body.address,

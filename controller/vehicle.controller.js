@@ -1,4 +1,5 @@
 const vehicleRepository = require('../repository/VehicleRepository')
+const { validatePlate } = require('../src/utils/validators')
 
 exports.getAllVehiculeBrands = async (req, res, next) => {
     try{
@@ -60,6 +61,12 @@ exports.getAllVehiculeType = async (req, res, next) => {
 
 exports.createVehicle = async (req, res, next) => {
     try{
+        const plateValidation = validatePlate(req.body.plate_id)
+        if (!plateValidation.valid) {
+            res.json({ success: false, payload: plateValidation.message })
+            return
+        }
+
         let params = {
             model: req.body.model,
             linea: req.body.linea,
@@ -185,6 +192,12 @@ exports.searchVehicleByPlate = async (req, res, next) => {
 
 exports.updateVehicle = async (req, res, next) => {
     try{
+        const plateValidation = validatePlate(req.body.plate_id)
+        if (!plateValidation.valid) {
+            res.json({ success: false, payload: plateValidation.message })
+            return
+        }
+
         let params = {
             model: req.body.model,
             linea: req.body.linea,
