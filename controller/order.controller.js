@@ -3,9 +3,9 @@ const orderRepository = require('../repository/OrderRepository')
 exports.createOrder = async (req, res, next) => {
     try{
         let params = {
-            number_pass: req.body.number_pass,
             order_date: req.body.order_date,
             payment_type: req.body.payment_type,
+            card_installments: req.body.card_installments,
             delivery_date: req.body.delivery_date,
             client_id: req.body.client_id,
             vendor_id: req.body.vendor_id,
@@ -140,6 +140,7 @@ exports.updateOrder = async (req, res, next) => {
             number_pass: req.body.number_pass,
             order_date: req.body.order_date,
             payment_type: req.body.payment_type,
+            card_installments: req.body.card_installments,
             delivery_date: req.body.delivery_date,
             client_id: req.body.client_id,
             vendor_id: req.body.vendor_id,

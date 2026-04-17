@@ -12,8 +12,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     number_pass: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    card_installments: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     order_date: {
       type: DataTypes.DATE,

@@ -6,10 +6,15 @@ let models = initModels(sequelize);
 let OrderRepository = function(){
 
     let createOrder = async(params) => {
+        // Auto-generate number_pass: MAX + 1, starting from 1000000001
+        const maxResult = await models.Order_Header.max('number_pass')
+        const nextPass = maxResult && maxResult >= 1000000001 ? maxResult + 1 : 1000000001
+
         const order = await models.Order_Header.create({
-            number_pass: params.number_pass,
+            number_pass: nextPass,
             order_date: params.order_date || new Date(),
             payment_type: params.payment_type,
+            card_installments: params.card_installments,
             delivery_date: params.delivery_date,
             client_id: params.client_id,
             vendor_id: params.vendor_id,
@@ -125,6 +130,7 @@ let OrderRepository = function(){
             number_pass: params.number_pass,
             order_date: params.order_date,
             payment_type: params.payment_type,
+            card_installments: params.card_installments,
             delivery_date: params.delivery_date,
             client_id: params.client_id,
             vendor_id: params.vendor_id,
