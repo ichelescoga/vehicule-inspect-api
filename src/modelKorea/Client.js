@@ -35,6 +35,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(45),
       allowNull: true
     },
+    authorization_cel: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
     create_date: {
       type: DataTypes.DATE,
       allowNull: true

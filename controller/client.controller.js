@@ -105,7 +105,8 @@ exports.updateClient = async (req, res, next) => {
             nit: req.body.nit,
             email: req.body.email,
             office_cel: req.body.office_cel,
-            residence_cel: req.body.residence_cel
+            residence_cel: req.body.residence_cel,
+            authorization_cel: req.body.authorization_cel
         }
         let result = await clientRepository.updateClient(req.params.id, params)
         console.log(result)
@@ -151,7 +152,8 @@ exports.createClient = async (req, res, next) => {
             nit: req.body.nit,
             email: req.body.email,
             office_cel: req.body.office_cel,
-            residence_cel: req.body.residence_cel
+            residence_cel: req.body.residence_cel,
+            authorization_cel: req.body.authorization_cel
         }
         let result = await clientRepository.createClient(params)
         console.log(result)

@@ -19,6 +19,7 @@ let ClientRepository = function(){
             email: params.email,
             office_cel: params.office_cel,
             residence_cel: params.residence_cel,
+            authorization_cel: params.authorization_cel,
             create_date: new Date(),
             status: 1
         })
@@ -51,6 +52,7 @@ let ClientRepository = function(){
             email: params.email,
             office_cel: params.office_cel,
             residence_cel: params.residence_cel,
+            authorization_cel: params.authorization_cel,
             update_date: new Date()
         }, { where: { id: id } })
     }
