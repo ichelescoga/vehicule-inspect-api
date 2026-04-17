@@ -2,7 +2,8 @@ const catalogRepository = require('../repository/CatalogRepository')
 
 exports.getAllVendors = async (req, res, next) => {
     try{
-        let result = await catalogRepository.getAllVendors()
+        const includeInactive = req.query.includeInactive === 'true'
+        let result = await catalogRepository.getAllVendors(includeInactive)
         console.log(result)
         if (!result) {
             console.info("Vendors were empty")
@@ -31,7 +32,8 @@ exports.getAllVendors = async (req, res, next) => {
 
 exports.getAllTechnicals = async (req, res, next) => {
     try{
-        let result = await catalogRepository.getAllTechnicals()
+        const includeInactive = req.query.includeInactive === 'true'
+        let result = await catalogRepository.getAllTechnicals(includeInactive)
         console.log(result)
         if (!result) {
             console.info("Technicals were empty")
@@ -93,7 +95,8 @@ exports.createVendor = async (req, res, next) => {
 exports.updateVendor = async (req, res, next) => {
     try{
         let params = {
-            name: req.body.name
+            name: req.body.name,
+            status: req.body.status
         }
         let result = await catalogRepository.updateVendor(req.params.id, params)
         console.log(result)
@@ -157,7 +160,8 @@ exports.createTechnical = async (req, res, next) => {
 exports.updateTechnical = async (req, res, next) => {
     try{
         let params = {
-            name: req.body.name
+            name: req.body.name,
+            status: req.body.status
         }
         let result = await catalogRepository.updateTechnical(req.params.id, params)
         console.log(result)

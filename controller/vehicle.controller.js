@@ -134,7 +134,8 @@ exports.getAllVehicleParts = async (req, res, next) => {
 
 exports.getAllVehicles = async (req, res, next) => {
     try{
-        let result = await vehicleRepository.getAllVehicles()
+        const includeInactive = req.query.includeInactive === 'true'
+        let result = await vehicleRepository.getAllVehicles(includeInactive)
         console.log(result)
         if (!result) {
             console.info("Vehicles were empty")
@@ -192,10 +193,12 @@ exports.searchVehicleByPlate = async (req, res, next) => {
 
 exports.updateVehicle = async (req, res, next) => {
     try{
-        const plateValidation = validatePlate(req.body.plate_id)
-        if (!plateValidation.valid) {
-            res.json({ success: false, payload: plateValidation.message })
-            return
+        if (req.body.plate_id) {
+            const plateValidation = validatePlate(req.body.plate_id)
+            if (!plateValidation.valid) {
+                res.json({ success: false, payload: plateValidation.message })
+                return
+            }
         }
 
         let params = {
@@ -205,7 +208,8 @@ exports.updateVehicle = async (req, res, next) => {
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
             vehicule_brand_id: req.body.vehicule_brand_id,
-            transmision_type: req.body.transmision_type
+            transmision_type: req.body.transmision_type,
+            status: req.body.status
         }
         let result = await vehicleRepository.updateVehicle(req.params.id, params)
         console.log(result)

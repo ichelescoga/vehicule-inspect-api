@@ -4,14 +4,14 @@ let models = initModels(sequelize);
 
 let CatalogRepository = function(){
 
-    let getAllVendors = async() =>{
-        return await models.Vendor.findAll({
-        })
+    let getAllVendors = async(includeInactive = false) =>{
+        const where = includeInactive ? {} : { status: 1 }
+        return await models.Vendor.findAll({ where })
     }
 
-    let getAllTechnicals = async() =>{
-        return await models.Technical.findAll({
-        })
+    let getAllTechnicals = async(includeInactive = false) =>{
+        const where = includeInactive ? {} : { status: 1 }
+        return await models.Technical.findAll({ where })
     }
 
     let createVendor = async(params) => {
@@ -23,10 +23,9 @@ let CatalogRepository = function(){
     }
 
     let updateVendor = async(id, params) => {
-        return await models.Vendor.update(
-            { name: params.name, update_date: new Date() },
-            { where: { id: id } }
-        )
+        const data = { name: params.name, update_date: new Date() }
+        if (params.status !== undefined) data.status = params.status
+        return await models.Vendor.update(data, { where: { id: id } })
     }
 
     let createTechnical = async(params) => {
@@ -38,10 +37,9 @@ let CatalogRepository = function(){
     }
 
     let updateTechnical = async(id, params) => {
-        return await models.Technical.update(
-            { name: params.name, update_date: new Date() },
-            { where: { id: id } }
-        )
+        const data = { name: params.name, update_date: new Date() }
+        if (params.status !== undefined) data.status = params.status
+        return await models.Technical.update(data, { where: { id: id } })
     }
 
     return {

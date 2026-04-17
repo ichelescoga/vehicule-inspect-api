@@ -51,9 +51,10 @@ let VehicleRepository = function(){
         })
     }
 
-    let getAllVehicles = async() =>{
+    let getAllVehicles = async(includeInactive = false) =>{
+        const where = includeInactive ? {} : { status: 1 }
         return await models.Vehicle.findAll({
-            where: { status: 1 },
+            where,
             include: [
                 { model: models.Vehicle_Brand, as: 'vehicule_brand' },
                 { model: models.Vehicle_Type, as: 'vehicule_type' }
@@ -75,7 +76,7 @@ let VehicleRepository = function(){
     }
 
     let updateVehicle = async(id, params) => {
-        return await models.Vehicle.update({
+        const data = {
             model: params.model,
             linea: params.linea,
             plate_id: params.plate_id,
@@ -84,7 +85,9 @@ let VehicleRepository = function(){
             vehicule_brand_id: params.vehicule_brand_id,
             transmision_type: params.transmision_type,
             update_date: new Date()
-        }, { where: { id: id } })
+        }
+        if (params.status !== undefined) data.status = params.status
+        return await models.Vehicle.update(data, { where: { id: id } })
     }
 
     let searchVehicleParts = async(name) => {
