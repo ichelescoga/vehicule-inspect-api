@@ -4,7 +4,7 @@ const serviceRepository = require('../repository/ServiceRepository')
 
 exports.getAllServiceTypes = async (req, res, next) => {
     try {
-        let result = await serviceRepository.getAllServiceTypes()
+        let result = await serviceRepository.getAllServiceTypes(req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -14,7 +14,7 @@ exports.getAllServiceTypes = async (req, res, next) => {
 
 exports.createServiceType = async (req, res, next) => {
     try {
-        let result = await serviceRepository.createServiceType({ name: req.body.name })
+        let result = await serviceRepository.createServiceType({ name: req.body.name }, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -36,7 +36,7 @@ exports.updateServiceType = async (req, res, next) => {
 
 exports.getAllServices = async (req, res, next) => {
     try {
-        let result = await serviceRepository.getAllServices()
+        let result = await serviceRepository.getAllServices(req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -46,7 +46,7 @@ exports.getAllServices = async (req, res, next) => {
 
 exports.getServicesByType = async (req, res, next) => {
     try {
-        let result = await serviceRepository.getServicesByType(req.params.serviceTypeId)
+        let result = await serviceRepository.getServicesByType(req.params.serviceTypeId, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -59,7 +59,7 @@ exports.createService = async (req, res, next) => {
         let result = await serviceRepository.createService({
             name: req.body.name,
             service_type_id: req.body.service_type_id
-        })
+        }, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -97,7 +97,7 @@ exports.createServiceOption = async (req, res, next) => {
         let result = await serviceRepository.createServiceOption({
             name: req.body.name,
             service_id: req.body.service_id
-        })
+        }, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
@@ -155,7 +155,7 @@ exports.updateOrderServiceOption = async (req, res, next) => {
 
 exports.searchServices = async (req, res, next) => {
     try {
-        let result = await serviceRepository.searchServices(req.params.query)
+        let result = await serviceRepository.searchServices(req.params.query, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)

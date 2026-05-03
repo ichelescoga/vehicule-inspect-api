@@ -3,7 +3,7 @@ const { validateNIT } = require('../src/utils/validators')
 
 exports.getAllClients = async (req, res, next) => {
     try{
-        let result = await clientRepository.getAllClients()
+        let result = await clientRepository.getAllClients(req.companyId)
         console.log(result)
         if (!result) {
             console.info("Clients were empty")
@@ -32,7 +32,7 @@ exports.getAllClients = async (req, res, next) => {
 
 exports.searchClientByNit = async (req, res, next) => {
     try{
-        let result = await clientRepository.searchClientByNit(req.params.nit)
+        let result = await clientRepository.searchClientByNit(req.params.nit, req.companyId)
         console.log(result)
         if (!result) {
             console.info("No clients found by NIT")
@@ -61,7 +61,7 @@ exports.searchClientByNit = async (req, res, next) => {
 
 exports.searchClientByName = async (req, res, next) => {
     try{
-        let result = await clientRepository.searchClientByName(req.params.name)
+        let result = await clientRepository.searchClientByName(req.params.name, req.companyId)
         console.log(result)
         if (!result) {
             console.info("No clients found by name")
@@ -155,7 +155,7 @@ exports.createClient = async (req, res, next) => {
             residence_cel: req.body.residence_cel,
             authorization_cel: req.body.authorization_cel
         }
-        let result = await clientRepository.createClient(params)
+        let result = await clientRepository.createClient(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Client was not created")

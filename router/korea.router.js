@@ -10,6 +10,7 @@ const authController = require('../controller/auth.controller')
 const userController = require('../controller/user.controller')
 const upload = require('../components/multerConfig')
 const security = require('../src/utils/security')
+const tenantMiddleware = require('../middleware/tenantMiddleware')
 
 function verfiyToken(req, res, next){
     const bearerHeader = req.headers['authorization'];
@@ -44,12 +45,23 @@ function authentication(req,res,next){
 
 // Auth
 router.post('/login', authController.login)
+router.post('/selectCompany', authController.selectCompany)
 router.post('/changePassword', authController.changePassword)
 router.post('/verifyToken', authController.verifyToken)
 
 // User Management (public)
 router.post('/requestAccount', userController.requestAccount)
 router.post('/requestPasswordReset', userController.requestPasswordReset)
+
+router.get('/healthcheck', (req, res) => {
+    res.json({succeded: true, payload: 'HealthCheck ok'})
+    console.log('HealthCheck ok')
+})
+
+// ============================================================
+// RUTAS PROTEGIDAS — tenant middleware (requiere JWT con companyId)
+// ============================================================
+router.use(tenantMiddleware)
 
 // User Management (admin)
 router.get('/getPendingRequests', userController.getPendingRequests)
@@ -73,11 +85,6 @@ router.delete('/removeRole/:userId/:rolId', userController.removeRole)
 router.get('/getPermissionsByRole/:rolId', userController.getPermissionsByRole)
 router.put('/updateRolePermissions/:rolId', userController.updateRolePermissions)
 router.get('/getPermissionsByUser/:userId', userController.getPermissionsByUser)
-
-router.get('/healthcheck', (req, res) => {
-    res.json({succeded: true, payload: 'HealthCheck ok'})
-    console.log('HealthCheck ok')
-})
 
 // Catalog - Vendor
 router.get('/getAllVendors', catalogController.getAllVendors)

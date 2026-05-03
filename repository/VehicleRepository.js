@@ -15,7 +15,7 @@ let VehicleRepository = function(){
         })
     }
 
-    let createVehicle = async(params) => {
+    let createVehicle = async(params, companyId) => {
         return await models.Vehicle.create({
             model: params.model,
             linea: params.linea,
@@ -24,14 +24,15 @@ let VehicleRepository = function(){
             vehicule_type_id: params.vehicule_type_id,
             vehicule_brand_id: params.vehicule_brand_id,
             transmision_type: params.transmision_type,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
     }
 
-    let getAllVehicleParts = async() =>{
+    let getAllVehicleParts = async(companyId) =>{
         return await models.Vehicle_Part.findAll({
-            where: { status: 1 }
+            where: { status: 1, company_id: companyId }
         })
     }
 
@@ -51,8 +52,8 @@ let VehicleRepository = function(){
         })
     }
 
-    let getAllVehicles = async(includeInactive = false) =>{
-        const where = includeInactive ? {} : { status: 1 }
+    let getAllVehicles = async(companyId, includeInactive = false) =>{
+        const where = includeInactive ? { company_id: companyId } : { status: 1, company_id: companyId }
         return await models.Vehicle.findAll({
             where,
             include: [
@@ -62,11 +63,12 @@ let VehicleRepository = function(){
         })
     }
 
-    let searchVehicleByPlate = async(plate) => {
+    let searchVehicleByPlate = async(plate, companyId) => {
         return await models.Vehicle.findAll({
             where: {
                 plate_id: { [Op.like]: `%${plate}%` },
-                status: 1
+                status: 1,
+                company_id: companyId
             },
             include: [
                 { model: models.Vehicle_Brand, as: 'vehicule_brand' },
@@ -90,18 +92,20 @@ let VehicleRepository = function(){
         return await models.Vehicle.update(data, { where: { id: id } })
     }
 
-    let searchVehicleParts = async(name) => {
+    let searchVehicleParts = async(name, companyId) => {
         return await models.Vehicle_Part.findAll({
             where: {
                 name: { [Op.like]: `%${name}%` },
-                status: 1
+                status: 1,
+                company_id: companyId
             }
         })
     }
 
-    let createVehiclePart = async(params) => {
+    let createVehiclePart = async(params, companyId) => {
         return await models.Vehicle_Part.create({
             name: params.name,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })

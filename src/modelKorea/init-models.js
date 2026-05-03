@@ -21,8 +21,10 @@ var _Account_Request = require("./Account_Request");
 var _Password_Reset_Request = require("./Password_Reset_Request");
 var _Role_Permission = require("./Role_Permission");
 var _Order_Signature = require("./Order_Signature");
+var _Company = require("./Company");
 
 function initModels(sequelize) {
+  var Company = _Company(sequelize, DataTypes);
   var Client = _Client(sequelize, DataTypes);
   var Inspection_File = _Inspection_File(sequelize, DataTypes);
   var Order_Header = _Order_Header(sequelize, DataTypes);
@@ -87,7 +89,32 @@ function initModels(sequelize) {
   Order_Signature.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
   Order_Header.hasMany(Order_Signature, { as: "Order_Signatures", foreignKey: "order_id"});
 
+  // Company associations
+  Client.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Client, { as: "Clients", foreignKey: "company_id"});
+  Vehicle.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Vehicle, { as: "Vehicles", foreignKey: "company_id"});
+  Technical.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Technical, { as: "Technicals", foreignKey: "company_id"});
+  Vendor.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Vendor, { as: "Vendors", foreignKey: "company_id"});
+  Order_Header.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "company_id"});
+  User.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(User, { as: "Users", foreignKey: "company_id"});
+  Service_Type.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Service_Type, { as: "Service_Types", foreignKey: "company_id"});
+  Service.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Service, { as: "Services", foreignKey: "company_id"});
+  Service_Option.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Service_Option, { as: "Service_Options", foreignKey: "company_id"});
+  Vehicle_Part.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Vehicle_Part, { as: "Vehicle_Parts", foreignKey: "company_id"});
+  User_Rol_Assign.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(User_Rol_Assign, { as: "User_Rol_Assigns", foreignKey: "company_id"});
+
   return {
+    Company,
     Client,
     Inspection_File,
     Order_Header,

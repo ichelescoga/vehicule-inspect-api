@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Service_Type', {
+  return sequelize.define('Company', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -10,6 +10,14 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING(100),
       allowNull: false
+    },
+    logo: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    },
+    config: {
+      type: DataTypes.JSON,
+      allowNull: true
     },
     create_date: {
       type: DataTypes.DATE,
@@ -21,19 +29,12 @@ module.exports = function(sequelize, DataTypes) {
     },
     status: {
       type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    company_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Company',
-        key: 'id'
-      }
+      allowNull: true,
+      defaultValue: 1
     }
   }, {
     sequelize,
-    tableName: 'Service_Type',
+    tableName: 'Company',
     timestamps: false,
     indexes: [
       {

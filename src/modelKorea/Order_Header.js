@@ -74,6 +74,14 @@ module.exports = function(sequelize, DataTypes) {
     status: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    company_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Company',
+        key: 'id'
+      }
     }
   }, {
     sequelize,

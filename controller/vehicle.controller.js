@@ -76,7 +76,7 @@ exports.createVehicle = async (req, res, next) => {
             vehicule_brand_id: req.body.vehicule_brand_id,
             transmision_type: req.body.transmision_type
         }
-        let result = await vehicleRepository.createVehicle(params)
+        let result = await vehicleRepository.createVehicle(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vehicle was not created")
@@ -105,7 +105,7 @@ exports.createVehicle = async (req, res, next) => {
 
 exports.getAllVehicleParts = async (req, res, next) => {
     try{
-        let result = await vehicleRepository.getAllVehicleParts()
+        let result = await vehicleRepository.getAllVehicleParts(req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vehicle Parts were empty")
@@ -135,7 +135,7 @@ exports.getAllVehicleParts = async (req, res, next) => {
 exports.getAllVehicles = async (req, res, next) => {
     try{
         const includeInactive = req.query.includeInactive === 'true'
-        let result = await vehicleRepository.getAllVehicles(includeInactive)
+        let result = await vehicleRepository.getAllVehicles(req.companyId, includeInactive)
         console.log(result)
         if (!result) {
             console.info("Vehicles were empty")
@@ -164,7 +164,7 @@ exports.getAllVehicles = async (req, res, next) => {
 
 exports.searchVehicleByPlate = async (req, res, next) => {
     try{
-        let result = await vehicleRepository.searchVehicleByPlate(req.params.plate)
+        let result = await vehicleRepository.searchVehicleByPlate(req.params.plate, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vehicles not found")
@@ -272,7 +272,7 @@ exports.createVehiculeBrand = async (req, res, next) => {
 
 exports.searchVehicleParts = async (req, res, next) => {
     try{
-        let result = await vehicleRepository.searchVehicleParts(req.params.name)
+        let result = await vehicleRepository.searchVehicleParts(req.params.name, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vehicle Parts not found")
@@ -304,7 +304,7 @@ exports.createVehiclePart = async (req, res, next) => {
         let params = {
             name: req.body.name
         }
-        let result = await vehicleRepository.createVehiclePart(params)
+        let result = await vehicleRepository.createVehiclePart(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vehicle Part was not created")

@@ -30,6 +30,32 @@ exports.changePassword = async (req, res, next) => {
     }
 }
 
+exports.selectCompany = async (req, res, next) => {
+    try {
+        const { companyId } = req.body
+        const token = req.headers.authorization?.replace('Bearer ', '')
+        if (!token) {
+            return res.json({ success: false, payload: 'Token no proporcionado' })
+        }
+
+        // Verify the temp token
+        const decoded = authRepository.verifyToken(token)
+        if (!decoded.userId) {
+            return res.json({ success: false, payload: 'Token invalido' })
+        }
+
+        if (!companyId) {
+            return res.json({ success: false, payload: 'companyId es requerido' })
+        }
+
+        const result = await authRepository.selectCompany(decoded.userId, companyId)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
 exports.verifyToken = async (req, res, next) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '')

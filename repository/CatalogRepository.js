@@ -4,19 +4,20 @@ let models = initModels(sequelize);
 
 let CatalogRepository = function(){
 
-    let getAllVendors = async(includeInactive = false) =>{
-        const where = includeInactive ? {} : { status: 1 }
+    let getAllVendors = async(companyId, includeInactive = false) =>{
+        const where = includeInactive ? { company_id: companyId } : { status: 1, company_id: companyId }
         return await models.Vendor.findAll({ where })
     }
 
-    let getAllTechnicals = async(includeInactive = false) =>{
-        const where = includeInactive ? {} : { status: 1 }
+    let getAllTechnicals = async(companyId, includeInactive = false) =>{
+        const where = includeInactive ? { company_id: companyId } : { status: 1, company_id: companyId }
         return await models.Technical.findAll({ where })
     }
 
-    let createVendor = async(params) => {
+    let createVendor = async(params, companyId) => {
         return await models.Vendor.create({
             name: params.name,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
@@ -28,9 +29,10 @@ let CatalogRepository = function(){
         return await models.Vendor.update(data, { where: { id: id } })
     }
 
-    let createTechnical = async(params) => {
+    let createTechnical = async(params, companyId) => {
         return await models.Technical.create({
             name: params.name,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })

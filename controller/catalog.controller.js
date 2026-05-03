@@ -3,7 +3,7 @@ const catalogRepository = require('../repository/CatalogRepository')
 exports.getAllVendors = async (req, res, next) => {
     try{
         const includeInactive = req.query.includeInactive === 'true'
-        let result = await catalogRepository.getAllVendors(includeInactive)
+        let result = await catalogRepository.getAllVendors(req.companyId, includeInactive)
         console.log(result)
         if (!result) {
             console.info("Vendors were empty")
@@ -33,7 +33,7 @@ exports.getAllVendors = async (req, res, next) => {
 exports.getAllTechnicals = async (req, res, next) => {
     try{
         const includeInactive = req.query.includeInactive === 'true'
-        let result = await catalogRepository.getAllTechnicals(includeInactive)
+        let result = await catalogRepository.getAllTechnicals(req.companyId, includeInactive)
         console.log(result)
         if (!result) {
             console.info("Technicals were empty")
@@ -65,7 +65,7 @@ exports.createVendor = async (req, res, next) => {
         let params = {
             name: req.body.name
         }
-        let result = await catalogRepository.createVendor(params)
+        let result = await catalogRepository.createVendor(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Vendor was not created")
@@ -130,7 +130,7 @@ exports.createTechnical = async (req, res, next) => {
         let params = {
             name: req.body.name
         }
-        let result = await catalogRepository.createTechnical(params)
+        let result = await catalogRepository.createTechnical(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Technical was not created")

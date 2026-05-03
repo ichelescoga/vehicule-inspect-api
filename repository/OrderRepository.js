@@ -5,9 +5,9 @@ let models = initModels(sequelize);
 
 let OrderRepository = function(){
 
-    let createOrder = async(params) => {
+    let createOrder = async(params, companyId) => {
         // Auto-generate number_pass: MAX + 1, starting from 1000000001
-        const maxResult = await models.Order_Header.max('number_pass')
+        const maxResult = await models.Order_Header.max('number_pass', { where: { company_id: companyId } })
         const nextPass = maxResult && maxResult >= 1000000001 ? maxResult + 1 : 1000000001
 
         const order = await models.Order_Header.create({
@@ -20,6 +20,7 @@ let OrderRepository = function(){
             vendor_id: params.vendor_id,
             vehicule_id: params.vehicule_id,
             technical_id: params.technical_id,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
@@ -59,8 +60,9 @@ let OrderRepository = function(){
         })
     }
 
-    let getAllOrders = async() => {
+    let getAllOrders = async(companyId) => {
         return await models.Order_Header.findAll({
+            where: { company_id: companyId },
             include: [
                 { model: models.Client, as: 'client' },
                 { model: models.Vendor, as: 'vendor' },
@@ -72,8 +74,8 @@ let OrderRepository = function(){
         })
     }
 
-    let searchOrders = async(filters) => {
-        let where = {}
+    let searchOrders = async(filters, companyId) => {
+        let where = { company_id: companyId }
         let clientWhere = {}
         let vendorWhere = {}
         let vehicleWhere = {}

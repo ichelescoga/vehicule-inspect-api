@@ -12,7 +12,7 @@ exports.createOrder = async (req, res, next) => {
             vehicule_id: req.body.vehicule_id,
             technical_id: req.body.technical_id
         }
-        let result = await orderRepository.createOrder(params)
+        let result = await orderRepository.createOrder(params, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Order was not created")
@@ -70,7 +70,7 @@ exports.getOrderById = async (req, res, next) => {
 
 exports.getAllOrders = async (req, res, next) => {
     try{
-        let result = await orderRepository.getAllOrders()
+        let result = await orderRepository.getAllOrders(req.companyId)
         console.log(result)
         if (!result) {
             console.info("Orders were empty")
@@ -107,7 +107,7 @@ exports.searchOrders = async (req, res, next) => {
             vendor_name: req.query.vendor_name,
             technical_name: req.query.technical_name
         }
-        let result = await orderRepository.searchOrders(filters)
+        let result = await orderRepository.searchOrders(filters, req.companyId)
         console.log(result)
         if (!result) {
             console.info("Orders not found")

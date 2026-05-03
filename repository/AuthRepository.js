@@ -17,10 +17,10 @@ let AuthRepository = function(){
                 as: 'User_Rol_Assigns',
                 where: { status: 1 },
                 required: false,
-                include: [{
-                    model: models.User_Rol,
-                    as: 'rol'
-                }]
+                include: [
+                    { model: models.User_Rol, as: 'rol' },
+                    { model: models.Company, as: 'company' }
+                ]
             }]
         })
 
@@ -36,15 +36,109 @@ let AuthRepository = function(){
             { where: { id: user.id } }
         )
 
-        // Build roles array
-        const roles = (user.User_Rol_Assigns || []).map(a => ({
+        // Build companies with roles
+        const assignments = (user.User_Rol_Assigns || [])
+        const companiesMap = {}
+        assignments.forEach(a => {
+            const compId = a.company_id
+            if (!companiesMap[compId]) {
+                companiesMap[compId] = {
+                    id: compId,
+                    name: a.company?.name,
+                    roles: []
+                }
+            }
+            companiesMap[compId].roles.push({
+                id: a.rol?.id,
+                name: a.rol?.name
+            })
+        })
+        const companies = Object.values(companiesMap)
+
+        // If user has exactly one company, generate JWT directly
+        if (companies.length === 1) {
+            const company = companies[0]
+            await models.User.update(
+                { company_id: company.id },
+                { where: { id: user.id } }
+            )
+
+            const token = jwt.sign(
+                { userId: user.id, email: user.email, companyId: company.id, roles: company.roles },
+                JWT_SECRET,
+                { expiresIn: JWT_EXPIRES_IN }
+            )
+
+            return {
+                token,
+                requireCompanySelection: false,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    company,
+                    roles: company.roles
+                }
+            }
+        }
+
+        // If user has multiple companies, return list for selector (no JWT yet)
+        // Generate a short-lived temp token just for the selectCompany step
+        const tempToken = jwt.sign(
+            { userId: user.id, email: user.email, temp: true },
+            JWT_SECRET,
+            { expiresIn: '5m' }
+        )
+
+        return {
+            token: tempToken,
+            requireCompanySelection: true,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                companies
+            }
+        }
+    }
+
+    let selectCompany = async(userId, companyId) => {
+        // Verify user has access to this company
+        const assignment = await models.User_Rol_Assign.findAll({
+            where: { user_id: userId, company_id: companyId, status: 1 },
+            include: [
+                { model: models.User_Rol, as: 'rol' },
+                { model: models.Company, as: 'company' }
+            ]
+        })
+
+        if (!assignment || assignment.length === 0) {
+            throw new Error('No tienes acceso a esta empresa')
+        }
+
+        const user = await models.User.findByPk(userId)
+        if (!user) throw new Error('Usuario no encontrado')
+
+        // Update active company
+        await models.User.update(
+            { company_id: companyId },
+            { where: { id: userId } }
+        )
+
+        const roles = assignment.map(a => ({
             id: a.rol?.id,
             name: a.rol?.name
         }))
 
-        // Generate JWT
+        const company = {
+            id: companyId,
+            name: assignment[0].company?.name,
+            roles
+        }
+
+        // Generate full JWT
         const token = jwt.sign(
-            { userId: user.id, email: user.email, roles },
+            { userId: user.id, email: user.email, companyId, roles },
             JWT_SECRET,
             { expiresIn: JWT_EXPIRES_IN }
         )
@@ -55,6 +149,7 @@ let AuthRepository = function(){
                 id: user.id,
                 username: user.username,
                 email: user.email,
+                company,
                 roles
             }
         }
@@ -86,6 +181,7 @@ let AuthRepository = function(){
 
     return {
         login,
+        selectCompany,
         changePassword,
         verifyToken
     }

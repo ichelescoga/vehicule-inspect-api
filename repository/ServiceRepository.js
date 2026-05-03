@@ -7,15 +7,16 @@ let ServiceRepository = function(){
 
     // ─── SERVICE TYPE ───
 
-    let getAllServiceTypes = async() => {
+    let getAllServiceTypes = async(companyId) => {
         return await models.Service_Type.findAll({
-            where: { status: 1 }
+            where: { status: 1, company_id: companyId }
         })
     }
 
-    let createServiceType = async(params) => {
+    let createServiceType = async(params, companyId) => {
         return await models.Service_Type.create({
             name: params.name,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
@@ -30,9 +31,9 @@ let ServiceRepository = function(){
 
     // ─── SERVICE ───
 
-    let getServicesByType = async(serviceTypeId) => {
+    let getServicesByType = async(serviceTypeId, companyId) => {
         return await models.Service.findAll({
-            where: { service_type_id: serviceTypeId, status: 1 },
+            where: { service_type_id: serviceTypeId, status: 1, company_id: companyId },
             include: [{
                 model: models.Service_Option,
                 as: 'Service_Options',
@@ -42,9 +43,9 @@ let ServiceRepository = function(){
         })
     }
 
-    let getAllServices = async() => {
+    let getAllServices = async(companyId) => {
         return await models.Service.findAll({
-            where: { status: 1 },
+            where: { status: 1, company_id: companyId },
             include: [
                 {
                     model: models.Service_Option,
@@ -60,10 +61,11 @@ let ServiceRepository = function(){
         })
     }
 
-    let createService = async(params) => {
+    let createService = async(params, companyId) => {
         return await models.Service.create({
             name: params.name,
             service_type_id: params.service_type_id,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
@@ -89,10 +91,11 @@ let ServiceRepository = function(){
         })
     }
 
-    let createServiceOption = async(params) => {
+    let createServiceOption = async(params, companyId) => {
         return await models.Service_Option.create({
             name: params.name,
             service_id: params.service_id,
+            company_id: companyId,
             create_date: new Date(),
             status: 1
         })
@@ -139,10 +142,10 @@ let ServiceRepository = function(){
         }, { where: { id } })
     }
 
-    let searchServices = async(query) => {
+    let searchServices = async(query, companyId) => {
         const like = { [Op.like]: `%${query}%` };
         return await models.Service_Option.findAll({
-            where: { status: 1, name: like },
+            where: { status: 1, name: like, company_id: companyId },
             include: [{
                 model: models.Service,
                 as: 'service',
