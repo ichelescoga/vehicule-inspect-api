@@ -207,16 +207,17 @@ let UserRepository = function(){
         return await models.User_Rol.update({ status: 0 }, { where: { id } })
     }
 
-    let assignRole = async(userId, rolId) => {
+    let assignRole = async(userId, rolId, companyId) => {
         // Check if already assigned
         const existing = await models.User_Rol_Assign.findOne({
-            where: { user_id: userId, rol_id: rolId, status: 1 }
+            where: { user_id: userId, rol_id: rolId, company_id: companyId, status: 1 }
         })
         if (existing) throw new Error('El usuario ya tiene este rol asignado')
 
         return await models.User_Rol_Assign.create({
             user_id: userId,
             rol_id: rolId,
+            company_id: companyId,
             status: 1
         })
     }

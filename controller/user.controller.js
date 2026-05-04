@@ -148,7 +148,7 @@ exports.deleteRole = async (req, res, next) => {
 
 exports.assignRole = async (req, res, next) => {
     try {
-        const result = await userRepository.assignRole(req.body.userId, req.body.rolId)
+        const result = await userRepository.assignRole(req.body.userId, req.body.rolId, req.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)
