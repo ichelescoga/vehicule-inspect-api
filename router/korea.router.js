@@ -86,6 +86,15 @@ router.get('/getPermissionsByRole/:rolId', userController.getPermissionsByRole)
 router.put('/updateRolePermissions/:rolId', userController.updateRolePermissions)
 router.get('/getPermissionsByUser/:userId', userController.getPermissionsByUser)
 
+// Company Management
+router.get('/getAllCompanies', userController.getAllCompanies)
+router.post('/createCompany', userController.createCompany)
+router.put('/updateCompany/:id', userController.updateCompany)
+router.get('/getCompanyUsers/:companyId', userController.getCompanyUsers)
+router.post('/assignUserCompanyRole', userController.assignUserCompanyRole)
+router.delete('/removeUserCompanyRole/:userId/:companyId/:rolId', userController.removeUserCompanyRole)
+router.get('/getUserCompanies/:userId', userController.getUserCompanies)
+
 // Catalog - Vendor
 router.get('/getAllVendors', catalogController.getAllVendors)
 router.post('/createVendor', catalogController.createVendor)

@@ -284,7 +284,82 @@ let UserRepository = function(){
         return Array.from(menuKeys)
     }
 
+    // ─── COMPANY MANAGEMENT ───
+
+    let getAllCompanies = async() => {
+        return await models.Company.findAll({
+            where: { status: 1 },
+            order: [['id', 'ASC']]
+        })
+    }
+
+    let createCompany = async(params) => {
+        return await models.Company.create({
+            name: params.name,
+            logo: params.logo || null,
+            config: params.config || null,
+            create_date: new Date(),
+            status: 1
+        })
+    }
+
+    let updateCompany = async(id, params) => {
+        const data = { name: params.name, update_date: new Date() }
+        if (params.logo !== undefined) data.logo = params.logo
+        if (params.config !== undefined) data.config = params.config
+        if (params.status !== undefined) data.status = params.status
+        return await models.Company.update(data, { where: { id } })
+    }
+
+    let getCompanyUsers = async(companyId) => {
+        return await models.User_Rol_Assign.findAll({
+            where: { company_id: companyId, status: 1 },
+            include: [
+                { model: models.User, as: 'user', attributes: ['id', 'username', 'email'] },
+                { model: models.User_Rol, as: 'rol' }
+            ]
+        })
+    }
+
+    let assignUserCompanyRole = async(userId, companyId, rolId) => {
+        const existing = await models.User_Rol_Assign.findOne({
+            where: { user_id: userId, company_id: companyId, rol_id: rolId, status: 1 }
+        })
+        if (existing) throw new Error('El usuario ya tiene este rol en esta empresa')
+
+        return await models.User_Rol_Assign.create({
+            user_id: userId,
+            company_id: companyId,
+            rol_id: rolId,
+            status: 1
+        })
+    }
+
+    let removeUserCompanyRole = async(userId, companyId, rolId) => {
+        return await models.User_Rol_Assign.update(
+            { status: 0 },
+            { where: { user_id: userId, company_id: companyId, rol_id: rolId } }
+        )
+    }
+
+    let getUserCompanies = async(userId) => {
+        return await models.User_Rol_Assign.findAll({
+            where: { user_id: userId, status: 1 },
+            include: [
+                { model: models.Company, as: 'company' },
+                { model: models.User_Rol, as: 'rol' }
+            ]
+        })
+    }
+
     return {
+        getAllCompanies,
+        createCompany,
+        updateCompany,
+        getCompanyUsers,
+        assignUserCompanyRole,
+        removeUserCompanyRole,
+        getUserCompanies,
         requestAccount,
         getPendingAccountRequests,
         approveAccount,

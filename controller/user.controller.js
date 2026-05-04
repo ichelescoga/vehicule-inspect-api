@@ -197,3 +197,77 @@ exports.getPermissionsByUser = async (req, res, next) => {
         res.json({ success: false, payload: error.message || error })
     }
 }
+
+// ─── COMPANY MANAGEMENT ───
+
+exports.getAllCompanies = async (req, res, next) => {
+    try {
+        const result = await userRepository.getAllCompanies()
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.createCompany = async (req, res, next) => {
+    try {
+        const result = await userRepository.createCompany({ name: req.body.name, logo: req.body.logo, config: req.body.config })
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.updateCompany = async (req, res, next) => {
+    try {
+        const result = await userRepository.updateCompany(req.params.id, req.body)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getCompanyUsers = async (req, res, next) => {
+    try {
+        const result = await userRepository.getCompanyUsers(req.params.companyId)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.assignUserCompanyRole = async (req, res, next) => {
+    try {
+        const result = await userRepository.assignUserCompanyRole(req.body.userId, req.body.companyId, req.body.rolId)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.removeUserCompanyRole = async (req, res, next) => {
+    try {
+        const result = await userRepository.removeUserCompanyRole(
+            parseInt(req.params.userId), parseInt(req.params.companyId), parseInt(req.params.rolId)
+        )
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getUserCompanies = async (req, res, next) => {
+    try {
+        const result = await userRepository.getUserCompanies(req.params.userId)
+        res.json({ success: true, payload: result })
+    } catch(error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
