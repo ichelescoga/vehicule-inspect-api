@@ -136,6 +136,121 @@ exports.getOrderSignature = async (req, res, next) => {
     }
 }
 
+// ─── SPARE PARTS ───
+
+exports.getAllSpareParts = async (req, res, next) => {
+    try {
+        const result = await models.Spare_Part.findAll({
+            where: { status: 1, company_id: req.companyId },
+            order: [['name', 'ASC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.searchSpareParts = async (req, res, next) => {
+    try {
+        const { Op } = require('sequelize')
+        const result = await models.Spare_Part.findAll({
+            where: {
+                name: { [Op.like]: `%${req.params.name}%` },
+                status: 1,
+                company_id: req.companyId
+            }
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.createSparePart = async (req, res, next) => {
+    try {
+        const result = await models.Spare_Part.create({
+            name: req.body.name,
+            company_id: req.companyId,
+            create_date: new Date(),
+            status: 1
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.uploadSparePartFile = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            res.json({ success: false, payload: 'No se recibió archivo' })
+            return
+        }
+
+        const orderId = parseInt(req.body.order_id)
+        const sparePartId = parseInt(req.body.spare_part_id)
+
+        if (!orderId || !sparePartId) {
+            res.json({ success: false, payload: 'order_id y spare_part_id son requeridos' })
+            return
+        }
+
+        const s3Result = await s3Service.uploadFile(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            orderId
+        )
+
+        const record = await models.Spare_Part_File.create({
+            order_id: orderId,
+            spare_part_id: sparePartId,
+            original_name: s3Result.originalName,
+            stored_name: s3Result.storedName,
+            file_type: s3Result.fileType,
+            s3_path: s3Result.s3Path,
+            create_date: new Date()
+        })
+
+        res.json({ success: true, payload: record })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getSparePartFiles = async (req, res, next) => {
+    try {
+        const result = await models.Spare_Part_File.findAll({
+            where: { order_id: req.params.orderId, status: 1 },
+            include: [
+                { model: models.Spare_Part, as: 'spare_part' }
+            ],
+            order: [['create_date', 'DESC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.deleteSparePartFile = async (req, res, next) => {
+    try {
+        const result = await models.Spare_Part_File.update(
+            { status: 0 },
+            { where: { id: req.params.id } }
+        )
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
 exports.getInspectionFiles = async (req, res, next) => {
     try {
         const result = await models.Inspection_File.findAll({

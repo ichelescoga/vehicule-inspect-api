@@ -168,4 +168,12 @@ router.put('/deleteInspectionFile/:id', uploadController.deleteInspectionFile)
 router.post('/uploadSignature', upload.single('file'), uploadController.uploadSignature)
 router.get('/getOrderSignature/:orderId', uploadController.getOrderSignature)
 
+// Spare Parts
+router.get('/getAllSpareParts', uploadController.getAllSpareParts)
+router.get('/searchSpareParts/:name', uploadController.searchSpareParts)
+router.post('/createSparePart', uploadController.createSparePart)
+router.post('/uploadSparePartFile', upload.single('file'), uploadController.uploadSparePartFile)
+router.get('/getSparePartFiles/:orderId', uploadController.getSparePartFiles)
+router.put('/deleteSparePartFile/:id', uploadController.deleteSparePartFile)
+
 module.exports = router

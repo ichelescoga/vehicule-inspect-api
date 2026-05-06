@@ -22,6 +22,8 @@ var _Password_Reset_Request = require("./Password_Reset_Request");
 var _Role_Permission = require("./Role_Permission");
 var _Order_Signature = require("./Order_Signature");
 var _Company = require("./Company");
+var _Spare_Part = require("./Spare_Part");
+var _Spare_Part_File = require("./Spare_Part_File");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -47,6 +49,8 @@ function initModels(sequelize) {
   var Password_Reset_Request = _Password_Reset_Request(sequelize, DataTypes);
   var Role_Permission = _Role_Permission(sequelize, DataTypes);
   var Order_Signature = _Order_Signature(sequelize, DataTypes);
+  var Spare_Part = _Spare_Part(sequelize, DataTypes);
+  var Spare_Part_File = _Spare_Part_File(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -113,6 +117,14 @@ function initModels(sequelize) {
   User_Rol_Assign.belongsTo(Company, { as: "company", foreignKey: "company_id"});
   Company.hasMany(User_Rol_Assign, { as: "User_Rol_Assigns", foreignKey: "company_id"});
 
+  // Spare Part associations
+  Spare_Part_File.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Spare_Part_File, { as: "Spare_Part_Files", foreignKey: "order_id"});
+  Spare_Part_File.belongsTo(Spare_Part, { as: "spare_part", foreignKey: "spare_part_id"});
+  Spare_Part.hasMany(Spare_Part_File, { as: "Spare_Part_Files", foreignKey: "spare_part_id"});
+  Spare_Part.belongsTo(Company, { as: "company", foreignKey: "company_id"});
+  Company.hasMany(Spare_Part, { as: "Spare_Parts", foreignKey: "company_id"});
+
   return {
     Company,
     Client,
@@ -137,6 +149,8 @@ function initModels(sequelize) {
     Password_Reset_Request,
     Role_Permission,
     Order_Signature,
+    Spare_Part,
+    Spare_Part_File,
   };
 }
 module.exports = initModels;
