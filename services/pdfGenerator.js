@@ -3,6 +3,9 @@ const path = require('path')
 
 const HEADER_IMG = path.join(__dirname, '..', 'assets', 'HeaderKorea.png')
 const FOOTER_IMG = path.join(__dirname, '..', 'assets', 'FooterKorea.png')
+const FONT_REGULAR = path.join(__dirname, '..', 'assets', 'fonts', 'Montserrat-Regular.ttf')
+const FONT_BOLD = path.join(__dirname, '..', 'assets', 'fonts', 'Montserrat-Bold.ttf')
+const FONT_ITALIC = path.join(__dirname, '..', 'assets', 'fonts', 'Montserrat-Italic.ttf')
 
 // Letter size in points
 const PAGE_W = 612
@@ -39,19 +42,19 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
         let y = CONTENT_TOP
 
         // Title centered
-        doc.font('Helvetica-Bold').fontSize(14)
+        doc.font(FONT_BOLD).fontSize(14)
         doc.text('COMENTARIOS', MARGIN, y, { width: CONTENT_W, align: 'center' })
         y += 20
 
         // Subtitle
-        doc.font('Helvetica').fontSize(8).fillColor('#999999')
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#999999')
         doc.text('GRUPO KOREA AUTOS', MARGIN, y)
         y += 12
         doc.fillColor('#000000')
 
         // Description header
-        doc.font('Helvetica-Bold').fontSize(13)
-        doc.text('DESCRIPCION DE FALLA REPORTADA POR EL CLIENTE', MARGIN, y)
+        doc.font(FONT_BOLD).fontSize(13)
+        doc.text('DESCRIPCIÓN DE FALLA REPORTADA POR EL CLIENTE', MARGIN, y)
         y += 20
 
         // Client info
@@ -63,25 +66,25 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
         const vehicleModel = order.vehicule?.model || 'N/A'
         const numberPass = order.number_pass || order.id
 
-        doc.font('Helvetica').fontSize(9)
+        doc.font(FONT_REGULAR).fontSize(9)
         doc.text(`Cliente: ${clientName}    NIT: ${clientNit}    Placa: ${vehiclePlate}    Pase: #${numberPass}`, MARGIN, y)
         y += 16
 
         // Symptom
-        doc.font('Helvetica-Bold').fontSize(12)
+        doc.font(FONT_BOLD).fontSize(12)
         doc.text('SINTOMA PRINCIPAL', MARGIN, y)
         y += 16
 
         // Symptom box
         const symptomText = comment.main_symptom || ''
         doc.rect(MARGIN, y, CONTENT_W, 50).stroke()
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         doc.text(symptomText, MARGIN + 6, y + 6, { width: CONTENT_W - 12 })
         y += 56
 
         // When occurs
-        doc.font('Helvetica-Bold').fontSize(12)
-        doc.text('* CUANDO OCURRE LA FALLA?', MARGIN, y)
+        doc.font(FONT_BOLD).fontSize(12)
+        doc.text('* ¿CUÁNDO OCURRE LA FALLA?', MARGIN, y)
         y += 16
 
         const whenOptions = [
@@ -91,7 +94,7 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
             ['En ralenti', comment.when_idle],
             ['Intermitente', comment.when_intermittent],
         ]
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         for (const [label, checked] of whenOptions) {
             drawCheck(doc, MARGIN + 10, y, label, checked)
             y += 14
@@ -99,57 +102,57 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
         y += 6
 
         // Since when
-        doc.font('Helvetica-Bold').fontSize(12)
-        doc.text('* DESDE CUANDO PRESENTA LA FALLA?', MARGIN, y)
+        doc.font(FONT_BOLD).fontSize(12)
+        doc.text('* ¿DESDE CUÁNDO PRESENTA LA FALLA?', MARGIN, y)
         y += 16
         doc.rect(MARGIN, y, CONTENT_W, 22).stroke()
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         doc.text(comment.since_when || '', MARGIN + 6, y + 6, { width: CONTENT_W - 12 })
         y += 28
 
         // Previously repaired
-        doc.font('Helvetica-Bold').fontSize(12)
-        doc.text('* SE HA INTERVENIDO ANTERIORMENTE?', MARGIN, y)
+        doc.font(FONT_BOLD).fontSize(12)
+        doc.text('* ¿SE HA INTERVENIDO ANTERIORMENTE?', MARGIN, y)
         y += 16
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         drawCheck(doc, MARGIN, y, 'SI', comment.previously_repaired == 1)
         drawCheck(doc, MARGIN + 60, y, 'NO', comment.previously_repaired != 1)
         y += 16
 
         if (comment.previously_repaired == 1) {
-            doc.font('Helvetica-Bold').fontSize(11)
+            doc.font(FONT_BOLD).fontSize(11)
             doc.text('DETALLE:', MARGIN, y)
             y += 14
             doc.rect(MARGIN, y, CONTENT_W, 40).stroke()
-            doc.font('Helvetica').fontSize(11)
+            doc.font(FONT_REGULAR).fontSize(11)
             doc.text(comment.repair_detail || '', MARGIN + 6, y + 6, { width: CONTENT_W - 12 })
             y += 46
         }
 
         // Dashboard light
-        doc.font('Helvetica-Bold').fontSize(12)
-        doc.text('* SE ENCIENDE ALGUNA LUZ EN EL TABLERO?', MARGIN, y)
+        doc.font(FONT_BOLD).fontSize(12)
+        doc.text('* ¿SE ENCIENDE ALGUNA LUZ EN EL TABLERO?', MARGIN, y)
         y += 16
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         drawCheck(doc, MARGIN, y, 'SI', comment.dashboard_light == 1)
         drawCheck(doc, MARGIN + 60, y, 'NO', comment.dashboard_light != 1)
         y += 16
 
         if (comment.dashboard_light == 1) {
-            doc.font('Helvetica-Bold').fontSize(11)
-            doc.text('CUAL?:', MARGIN, y)
+            doc.font(FONT_BOLD).fontSize(11)
+            doc.text('¿CUÁL?:', MARGIN, y)
             y += 14
             doc.rect(MARGIN, y, CONTENT_W, 22).stroke()
-            doc.font('Helvetica').fontSize(11)
+            doc.font(FONT_REGULAR).fontSize(11)
             doc.text(comment.dashboard_light_which || '', MARGIN + 6, y + 6, { width: CONTENT_W - 12 })
             y += 28
         }
 
         // Urgency
-        doc.font('Helvetica-Bold').fontSize(12)
+        doc.font(FONT_BOLD).fontSize(12)
         doc.text('* NIVEL DE URGENCIA PERCIBIDO POR EL CLIENTE', MARGIN, y)
         y += 16
-        doc.font('Helvetica').fontSize(11)
+        doc.font(FONT_REGULAR).fontSize(11)
         drawCheck(doc, MARGIN, y, 'BAJO', comment.urgency_level === 'BAJO')
         drawCheck(doc, MARGIN + 80, y, 'MEDIO', comment.urgency_level === 'MEDIO')
         drawCheck(doc, MARGIN + 170, y, 'ALTO', comment.urgency_level === 'ALTO')
@@ -164,10 +167,10 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
 
         // Disclaimer
         y += 10
-        doc.font('Helvetica-Bold').fontSize(11)
+        doc.font(FONT_BOLD).fontSize(11)
         doc.text('Nota: ', MARGIN, y, { continued: true })
-        doc.font('Helvetica').fontSize(11)
-        doc.text('La descripcion anterior corresponde exclusivamente a la informacion proporcionada por EL CLIENTE y tiene caracter referencial. EL TALLER realizara un diagnostico tecnico para determinar la causa real de la falla, la cual puede diferir de lo descrito.', {
+        doc.font(FONT_REGULAR).fontSize(11)
+        doc.text('La descripción anterior corresponde exclusivamente a la información proporcionada por EL CLIENTE y tiene carácter referencial. EL TALLER realizará un diagnóstico técnico para determinar la causa real de la falla, la cual puede diferir de lo descrito.', {
             width: CONTENT_W,
             align: 'justify'
         })
@@ -180,14 +183,14 @@ function generateCommentsPdf({ order, comment, signatureBuffer }) {
                 addHeaderFooter(doc)
                 y = CONTENT_TOP
             }
-            doc.font('Helvetica-Bold').fontSize(11)
+            doc.font(FONT_BOLD).fontSize(11)
             doc.text('FIRMA DEL CLIENTE:', MARGIN, y)
             y += 14
             doc.image(signatureBuffer, MARGIN, y, { fit: [250, 80] })
             y += 82
             doc.moveTo(MARGIN, y).lineTo(MARGIN + 250, y).stroke()
             y += 4
-            doc.font('Helvetica').fontSize(9)
+            doc.font(FONT_REGULAR).fontSize(9)
             doc.text(clientName, MARGIN, y)
             y += 12
             doc.fontSize(8).fillColor('#999999')
@@ -215,32 +218,32 @@ function generateTermsPdf({ order, signatureBuffer }) {
         let y = CONTENT_TOP
 
         // Title
-        doc.font('Helvetica-Bold').fontSize(22)
-        doc.text('TERMINOS Y CONDICIONES DE RECEPCION Y SERVICIO DE VEHICULOS', MARGIN, y, {
+        doc.font(FONT_BOLD).fontSize(22)
+        doc.text('TÉRMINOS Y CONDICIONES DE RECEPCIÓN Y SERVICIO DE VEHÍCULOS', MARGIN, y, {
             width: CONTENT_W,
             align: 'center'
         })
         y = doc.y + 8
 
-        doc.font('Helvetica').fontSize(8).fillColor('#999999')
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#999999')
         doc.text('GRUPO KOREA AUTOS', MARGIN, y)
         y += 16
         doc.fillColor('#000000')
 
         const terms = [
-            ['I. IDENTIFICACION DE LAS PARTES', 'Entre Korea Autos, en adelante "EL TALLER", y el propietario o responsable del vehiculo, en adelante "EL CLIENTE", se celebra el presente acuerdo de prestacion de servicios automotrices.'],
-            ['II. OBJETO', 'Regular la recepcion, diagnostico, reparacion, custodia y entrega de vehiculos ingresados a las instalaciones de EL TALLER.'],
-            ['III. RECEPCION DEL VEHICULO', 'EL CLIENTE declara que el vehiculo ha sido entregado voluntariamente y que su estado ha sido documentado mediante orden de trabajo, checklist y registro fotografico.'],
-            ['IV. INSPECCION Y DIAGNOSTICO', 'El cliente acepta que el diagnostico es preliminar y pueden surgir fallas adicionales no detectadas inicialmente.'],
-            ['V. AUTORIZACION DE TRABAJOS', 'Todo trabajo adicional sera autorizado por el cliente mediante firma, correo electronico o mensajeria electronica (WhatsApp).'],
-            ['VI. PRUEBAS DE MANEJO', 'EL CLIENTE autoriza pruebas de manejo hasta un maximo de 25 kilometros a la redonda, segun sea necesario para diagnostico o validacion de reparacion.'],
-            ['VII. OBJETOS PERSONALES', 'Korea Autos no se responsabiliza por objetos personales no declarados dentro del vehiculo.'],
-            ['VIII. RESPONSABILIDAD', 'El taller sera responsable unicamente por danos comprobables derivados de negligencia directa.'],
-            ['IX. COMBUSTIBLE', 'El cliente debera entregar el vehiculo con combustible suficiente o autoriza su cargo en factura.'],
+            ['I. IDENTIFICACIÓN DE LAS PARTES', 'Entre Korea Autos, en adelante "EL TALLER", y el propietario o responsable del vehículo, en adelante "EL CLIENTE", se celebra el presente acuerdo de prestación de servicios automotrices.'],
+            ['II. OBJETO', 'Regular la recepción, diagnóstico, reparación, custodia y entrega de vehículos ingresados a las instalaciones de EL TALLER.'],
+            ['III. RECEPCIÓN DEL VEHÍCULO', 'EL CLIENTE declara que el vehículo ha sido entregado voluntariamente y que su estado ha sido documentado mediante orden de trabajo, checklist y registro fotográfico.'],
+            ['IV. INSPECCIÓN Y DIAGNÓSTICO', 'El cliente acepta que el diagnóstico es preliminar y pueden surgir fallas adicionales no detectadas inicialmente.'],
+            ['V. AUTORIZACIÓN DE TRABAJOS', 'Todo trabajo adicional será autorizado por el cliente mediante firma, correo electrónico o mensajería electrónica (WhatsApp).'],
+            ['VI. PRUEBAS DE MANEJO', 'EL CLIENTE autoriza pruebas de manejo hasta un máximo de 25 kilómetros a la redonda, según sea necesario para diagnóstico o validación de reparación.'],
+            ['VII. OBJETOS PERSONALES', 'Korea Autos no se responsabiliza por objetos personales no declarados dentro del vehículo.'],
+            ['VIII. RESPONSABILIDAD', 'El taller será responsable únicamente por daños comprobables derivados de negligencia directa.'],
+            ['IX. COMBUSTIBLE', 'El cliente deberá entregar el vehículo con combustible suficiente o autoriza su cargo en factura.'],
             ['X. TIEMPOS DE ENTREGA', 'Los tiempos de entrega son estimados y pueden variar.'],
-            ['XI. VEHICULOS NO RETIRADOS', 'Despues de 5 dias se notificara, 15 dias se cobrara parqueo y 30 dias se iniciaran acciones legales.'],
-            ['XII. GARANTIA', 'La garantia cubre exclusivamente los trabajos realizados y repuestos instalados por Korea Autos. No cubre fallas distintas o no relacionadas con la reparacion efectuada, aun cuando se presenten posteriormente. El tiempo de garantia de los trabajos es de 30 dias calendario.'],
-            ['XIII. ACEPTACION', 'Declaro que he leido y acepto los Terminos y Condiciones de Servicio de Korea Autos.'],
+            ['XI. VEHÍCULOS NO RETIRADOS', 'Después de 5 días se notificará, 15 días se cobrará parqueo y 30 días se iniciarán acciones legales.'],
+            ['XII. GARANTÍA', 'La garantía cubre exclusivamente los trabajos realizados y repuestos instalados por Korea Autos. No cubre fallas distintas o no relacionadas con la reparación efectuada, aun cuando se presenten posteriormente. El tiempo de garantía de los trabajos es de 30 días calendario.'],
+            ['XIII. ACEPTACIÓN', 'Declaro que he leído y acepto los Términos y Condiciones de Servicio de Korea Autos.'],
         ]
 
         for (const [heading, body] of terms) {
@@ -249,10 +252,10 @@ function generateTermsPdf({ order, signatureBuffer }) {
                 addHeaderFooter(doc)
                 y = CONTENT_TOP
             }
-            doc.font('Helvetica-Bold').fontSize(12)
+            doc.font(FONT_BOLD).fontSize(12)
             doc.text(heading, MARGIN, y, { width: CONTENT_W })
             y = doc.y + 2
-            doc.font('Helvetica').fontSize(11)
+            doc.font(FONT_REGULAR).fontSize(11)
             doc.text(body, MARGIN, y, { width: CONTENT_W, align: 'justify' })
             y = doc.y + 10
         }
@@ -268,14 +271,14 @@ function generateTermsPdf({ order, signatureBuffer }) {
             const clientName = order.client?.name || ''
             const clientNit = order.client?.nit || 'N/A'
 
-            doc.font('Helvetica-Bold').fontSize(11)
-            doc.text('FIRMA DE ACEPTACION:', MARGIN, y)
+            doc.font(FONT_BOLD).fontSize(11)
+            doc.text('FIRMA DE ACEPTACIÓN:', MARGIN, y)
             y += 14
             doc.image(signatureBuffer, MARGIN, y, { fit: [250, 80] })
             y += 82
             doc.moveTo(MARGIN, y).lineTo(MARGIN + 250, y).stroke()
             y += 4
-            doc.font('Helvetica').fontSize(9)
+            doc.font(FONT_REGULAR).fontSize(9)
             doc.text(clientName, MARGIN, y)
             y += 12
             doc.fontSize(8).fillColor('#999999')
@@ -291,10 +294,10 @@ function generateTermsPdf({ order, signatureBuffer }) {
 function drawCheck(doc, x, y, label, checked) {
     doc.rect(x, y, 10, 10).stroke()
     if (checked) {
-        doc.font('Helvetica-Bold').fontSize(8)
+        doc.font(FONT_BOLD).fontSize(8)
         doc.text('X', x + 2, y + 1, { width: 10 })
     }
-    doc.font('Helvetica').fontSize(11)
+    doc.font(FONT_REGULAR).fontSize(11)
     doc.text(label, x + 14, y - 1, { width: 200 })
 }
 
