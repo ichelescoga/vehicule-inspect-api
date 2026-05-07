@@ -251,6 +251,71 @@ exports.deleteSparePartFile = async (req, res, next) => {
     }
 }
 
+// ─── QUOTATION FILES ───
+
+exports.uploadQuotationFile = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            res.json({ success: false, payload: 'No se recibio archivo' })
+            return
+        }
+
+        const orderId = parseInt(req.body.order_id)
+
+        if (!orderId) {
+            res.json({ success: false, payload: 'order_id es requerido' })
+            return
+        }
+
+        const s3Result = await s3Service.uploadFile(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            orderId
+        )
+
+        const record = await models.Quotation_File.create({
+            order_id: orderId,
+            original_name: s3Result.originalName,
+            stored_name: s3Result.storedName,
+            file_type: s3Result.fileType,
+            s3_path: s3Result.s3Path,
+            create_date: new Date()
+        })
+
+        res.json({ success: true, payload: record })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getQuotationFiles = async (req, res, next) => {
+    try {
+        const result = await models.Quotation_File.findAll({
+            where: { order_id: req.params.orderId, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.deleteQuotationFile = async (req, res, next) => {
+    try {
+        const result = await models.Quotation_File.update(
+            { status: 0 },
+            { where: { id: req.params.id } }
+        )
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
 exports.getInspectionFiles = async (req, res, next) => {
     try {
         const result = await models.Inspection_File.findAll({

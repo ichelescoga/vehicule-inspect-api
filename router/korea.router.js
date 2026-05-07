@@ -8,6 +8,7 @@ const catalogController = require('../controller/catalog.controller')
 const uploadController = require('../controller/upload.controller')
 const authController = require('../controller/auth.controller')
 const userController = require('../controller/user.controller')
+const documentController = require('../controller/document.controller')
 const upload = require('../components/multerConfig')
 const security = require('../src/utils/security')
 const tenantMiddleware = require('../middleware/tenantMiddleware')
@@ -155,6 +156,7 @@ router.get('/getAllOrders', orderController.getAllOrders)
 router.put('/updateOrder/:id', orderController.updateOrder)
 router.put('/updateOrderStatus/:id', orderController.updateOrderStatus)
 router.get('/getOrderStatusLog/:orderId', orderController.getOrderStatusLog)
+router.put('/updateOrderStatusLogDescription/:id', orderController.updateOrderStatusLogDescription)
 router.get('/getOrdersByClient/:clientId', orderController.getOrdersByClient)
 router.post('/createOrderVehiculePart', orderController.createOrderVehiculePart)
 router.post('/createOrderServiceOption', orderController.createOrderServiceOption)
@@ -167,6 +169,23 @@ router.put('/deleteInspectionFile/:id', uploadController.deleteInspectionFile)
 // Signature
 router.post('/uploadSignature', upload.single('file'), uploadController.uploadSignature)
 router.get('/getOrderSignature/:orderId', uploadController.getOrderSignature)
+
+// Order Documents
+router.post('/uploadOrderDocument', upload.single('file'), documentController.uploadOrderDocument)
+router.get('/getOrderDocuments/:orderId', documentController.getOrderDocuments)
+router.put('/deleteOrderDocument/:id', documentController.deleteOrderDocument)
+router.get('/getDocumentTypes', documentController.getDocumentTypes)
+
+// Order Comments
+router.post('/createOrderComment', documentController.createOrderComment)
+router.get('/getOrderComment/:orderId', documentController.getOrderComment)
+router.put('/updateOrderComment/:id', documentController.updateOrderComment)
+router.post('/generateReceptionPdfs/:orderId', documentController.generateReceptionPdfs)
+
+// Quotation Files
+router.post('/uploadQuotationFile', upload.single('file'), uploadController.uploadQuotationFile)
+router.get('/getQuotationFiles/:orderId', uploadController.getQuotationFiles)
+router.put('/deleteQuotationFile/:id', uploadController.deleteQuotationFile)
 
 // Spare Parts
 router.get('/getAllSpareParts', uploadController.getAllSpareParts)

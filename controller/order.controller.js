@@ -203,6 +203,16 @@ exports.updateOrderStatus = async (req, res, next) => {
     }
 }
 
+exports.updateOrderStatusLogDescription = async (req, res, next) => {
+    try {
+        const result = await orderRepository.updateOrderStatusLogDescription(req.params.id, req.body.description)
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
 exports.getOrderStatusLog = async (req, res, next) => {
     try{
         let result = await orderRepository.getOrderStatusLog(req.params.orderId)

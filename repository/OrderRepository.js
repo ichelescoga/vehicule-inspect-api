@@ -158,7 +158,7 @@ let OrderRepository = function(){
             { end_date: now, description: description || null },
             { where: { order_id: id, end_date: null } }
         )
-        // Create new status log (without description)
+        // Create new status log
         await models.Order_Status_Log.create({
             order_id: id,
             status: status,
@@ -177,6 +177,13 @@ let OrderRepository = function(){
             where: { order_id: orderId },
             order: [['start_date', 'ASC']]
         })
+    }
+
+    let updateOrderStatusLogDescription = async(logId, description) => {
+        return await models.Order_Status_Log.update(
+            { description: description || null },
+            { where: { id: logId } }
+        )
     }
 
     let getOrdersByClient = async(clientId) => {
@@ -219,6 +226,7 @@ let OrderRepository = function(){
         searchOrders,
         updateOrder,
         updateOrderStatus,
+        updateOrderStatusLogDescription,
         getOrderStatusLog,
         getOrdersByClient,
         createOrderVehiculePart,

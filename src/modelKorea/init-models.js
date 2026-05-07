@@ -24,6 +24,10 @@ var _Order_Signature = require("./Order_Signature");
 var _Company = require("./Company");
 var _Spare_Part = require("./Spare_Part");
 var _Spare_Part_File = require("./Spare_Part_File");
+var _Quotation_File = require("./Quotation_File");
+var _Order_Document_Type = require("./Order_Document_Type");
+var _Order_Document = require("./Order_Document");
+var _Order_Comment = require("./Order_Comment");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -51,6 +55,10 @@ function initModels(sequelize) {
   var Order_Signature = _Order_Signature(sequelize, DataTypes);
   var Spare_Part = _Spare_Part(sequelize, DataTypes);
   var Spare_Part_File = _Spare_Part_File(sequelize, DataTypes);
+  var Quotation_File = _Quotation_File(sequelize, DataTypes);
+  var Order_Document_Type = _Order_Document_Type(sequelize, DataTypes);
+  var Order_Document = _Order_Document(sequelize, DataTypes);
+  var Order_Comment = _Order_Comment(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -125,6 +133,20 @@ function initModels(sequelize) {
   Spare_Part.belongsTo(Company, { as: "company", foreignKey: "company_id"});
   Company.hasMany(Spare_Part, { as: "Spare_Parts", foreignKey: "company_id"});
 
+  // Quotation File associations
+  Quotation_File.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Quotation_File, { as: "Quotation_Files", foreignKey: "order_id"});
+
+  // Order Document associations
+  Order_Document.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_Document, { as: "Order_Documents", foreignKey: "order_id"});
+  Order_Document.belongsTo(Order_Document_Type, { as: "document_type", foreignKey: "document_type_id"});
+  Order_Document_Type.hasMany(Order_Document, { as: "Order_Documents", foreignKey: "document_type_id"});
+
+  // Order Comment associations
+  Order_Comment.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_Comment, { as: "Order_Comments", foreignKey: "order_id"});
+
   return {
     Company,
     Client,
@@ -151,6 +173,10 @@ function initModels(sequelize) {
     Order_Signature,
     Spare_Part,
     Spare_Part_File,
+    Quotation_File,
+    Order_Document_Type,
+    Order_Document,
+    Order_Comment,
   };
 }
 module.exports = initModels;
