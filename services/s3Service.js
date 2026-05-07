@@ -27,7 +27,10 @@ let S3Service = function() {
             ContentType: mimeType
         }));
 
-        const s3Path = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+        const cdnDomain = process.env.CDN_DOCS_DOMAIN;
+        const s3Path = cdnDomain
+            ? `https://${cdnDomain}/${s3Key}`
+            : `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
         return {
             originalName,
