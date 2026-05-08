@@ -29,6 +29,7 @@ var _Order_Document_Type = require("./Order_Document_Type");
 var _Order_Document = require("./Order_Document");
 var _Order_Comment = require("./Order_Comment");
 var _Signature_Token = require("./Signature_Token");
+var _Order_Checklist = require("./Order_Checklist");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -61,6 +62,7 @@ function initModels(sequelize) {
   var Order_Document = _Order_Document(sequelize, DataTypes);
   var Order_Comment = _Order_Comment(sequelize, DataTypes);
   var Signature_Token = _Signature_Token(sequelize, DataTypes);
+  var Order_Checklist = _Order_Checklist(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -153,6 +155,10 @@ function initModels(sequelize) {
   Order_Header.hasMany(Signature_Token, { as: "Signature_Tokens", foreignKey: "order_id"});
   Order_Header.hasMany(Order_Comment, { as: "Order_Comments", foreignKey: "order_id"});
 
+  // Order Checklist associations
+  Order_Checklist.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_Checklist, { as: "Order_Checklists", foreignKey: "order_id"});
+
   return {
     Company,
     Client,
@@ -184,6 +190,7 @@ function initModels(sequelize) {
     Order_Document,
     Order_Comment,
     Signature_Token,
+    Order_Checklist,
   };
 }
 module.exports = initModels;

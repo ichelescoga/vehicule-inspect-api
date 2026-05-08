@@ -187,6 +187,12 @@ router.put('/updateOrderComment/:id', documentController.updateOrderComment)
 router.post('/generateReceptionPdfs/:orderId', documentController.generateReceptionPdfs)
 router.post('/generateSignatureToken/:orderId', documentController.generateSignatureToken)
 
+// Order Checklist (Cierre)
+router.post('/createOrderChecklist', documentController.createOrderChecklist)
+router.get('/getOrderChecklist/:orderId', documentController.getOrderChecklist)
+router.put('/updateOrderChecklist/:id', documentController.updateOrderChecklist)
+router.post('/generateChecklistPdf/:orderId', documentController.generateChecklistPdf)
+
 // Quotation Files
 router.post('/uploadQuotationFile', upload.single('file'), uploadController.uploadQuotationFile)
 router.get('/getQuotationFiles/:orderId', uploadController.getQuotationFiles)

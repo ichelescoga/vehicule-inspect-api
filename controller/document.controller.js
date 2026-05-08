@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const sequelize = require('../components/conn_sqlz');
 const initModels = require("../src/modelKorea/init-models");
 const models = initModels(sequelize);
-const { generateCommentsPdf, generateTermsPdf } = require('../services/pdfGenerator');
+const { generateCommentsPdf, generateTermsPdf, generateChecklistPdf } = require('../services/pdfGenerator');
 
 // ─── ORDER DOCUMENT ───
 
@@ -388,6 +388,182 @@ exports.submitRemoteSignature = async (req, res, next) => {
         }
 
         res.json({ success: true, payload: 'Firma registrada exitosamente' })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+// ─── ORDER CHECKLIST ───
+
+exports.createOrderChecklist = async (req, res, next) => {
+    try {
+        const record = await models.Order_Checklist.create({
+            order_id: req.body.order_id,
+            // Niveles generales
+            oil_motor: req.body.oil_motor,
+            oil_gearbox: req.body.oil_gearbox,
+            oil_mechanical: req.body.oil_mechanical,
+            oil_steering: req.body.oil_steering,
+            oil_differential: req.body.oil_differential,
+            coolant: req.body.coolant,
+            windshield_fluid: req.body.windshield_fluid,
+            brake_fluid: req.body.brake_fluid,
+            car_wash: req.body.car_wash,
+            // Aros y neumaticos
+            bolts: req.body.bolts,
+            studs: req.body.studs,
+            bolts_torqued: req.body.bolts_torqued,
+            rim_caps: req.body.rim_caps,
+            rim_condition: req.body.rim_condition,
+            tire_condition: req.body.tire_condition,
+            spare_tire: req.body.spare_tire,
+            tools: req.body.tools,
+            // Accesorios y testigos
+            check_engine: req.body.check_engine,
+            abs_light: req.body.abs_light,
+            airbag_light: req.body.airbag_light,
+            tpms_light: req.body.tpms_light,
+            anti_skid: req.body.anti_skid,
+            other_lights: req.body.other_lights,
+            other_lights_detail: req.body.other_lights_detail,
+            // Confirmacion
+            spare_parts_delivered: req.body.spare_parts_delivered ? 1 : 0,
+            // Datos adicionales
+            invoice_number: req.body.invoice_number,
+            delivery_time: req.body.delivery_time,
+            observations: req.body.observations,
+            create_date: new Date()
+        })
+        res.json({ success: true, payload: record })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getOrderChecklist = async (req, res, next) => {
+    try {
+        const result = await models.Order_Checklist.findOne({
+            where: { order_id: req.params.orderId, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.updateOrderChecklist = async (req, res, next) => {
+    try {
+        const result = await models.Order_Checklist.update({
+            oil_motor: req.body.oil_motor,
+            oil_gearbox: req.body.oil_gearbox,
+            oil_mechanical: req.body.oil_mechanical,
+            oil_steering: req.body.oil_steering,
+            oil_differential: req.body.oil_differential,
+            coolant: req.body.coolant,
+            windshield_fluid: req.body.windshield_fluid,
+            brake_fluid: req.body.brake_fluid,
+            car_wash: req.body.car_wash,
+            bolts: req.body.bolts,
+            studs: req.body.studs,
+            bolts_torqued: req.body.bolts_torqued,
+            rim_caps: req.body.rim_caps,
+            rim_condition: req.body.rim_condition,
+            tire_condition: req.body.tire_condition,
+            spare_tire: req.body.spare_tire,
+            tools: req.body.tools,
+            check_engine: req.body.check_engine,
+            abs_light: req.body.abs_light,
+            airbag_light: req.body.airbag_light,
+            tpms_light: req.body.tpms_light,
+            anti_skid: req.body.anti_skid,
+            other_lights: req.body.other_lights,
+            other_lights_detail: req.body.other_lights_detail,
+            spare_parts_delivered: req.body.spare_parts_delivered ? 1 : 0,
+            invoice_number: req.body.invoice_number,
+            delivery_time: req.body.delivery_time,
+            observations: req.body.observations,
+        }, { where: { id: req.params.id } })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+// ─── CHECKLIST PDF GENERATION ───
+
+exports.generateChecklistPdf = async (req, res, next) => {
+    try {
+        const orderId = parseInt(req.params.orderId)
+
+        const order = await models.Order_Header.findOne({
+            where: { id: orderId },
+            include: [
+                { model: models.Client, as: 'client' },
+                { model: models.Vehicle, as: 'vehicule', include: [{ model: models.Vehicle_Brand, as: 'vehicule_brand' }] },
+                { model: models.Technical, as: 'technical' },
+            ]
+        })
+
+        if (!order) {
+            return res.json({ success: false, payload: 'Orden no encontrada' })
+        }
+
+        const checklist = await models.Order_Checklist.findOne({
+            where: { order_id: orderId, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+
+        if (!checklist) {
+            return res.json({ success: false, payload: 'No hay checklist registrado para esta orden' })
+        }
+
+        // Load delivery signature (document_type_id 6)
+        let signatureBuffer = null
+        const sigDoc = await models.Order_Document.findOne({
+            where: { order_id: orderId, document_type_id: 6, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+        if (sigDoc) {
+            try {
+                const fetch = require('https')
+                signatureBuffer = await new Promise((resolve, reject) => {
+                    fetch.get(sigDoc.s3_path, (response) => {
+                        const chunks = []
+                        response.on('data', c => chunks.push(c))
+                        response.on('end', () => resolve(Buffer.concat(chunks)))
+                        response.on('error', reject)
+                    }).on('error', reject)
+                })
+            } catch (e) {
+                console.log('Could not load delivery signature:', e.message)
+            }
+        }
+
+        // Soft-delete existing checklist PDF (type 5)
+        await models.Order_Document.update(
+            { status: 0 },
+            { where: { order_id: orderId, document_type_id: 5, status: 1 } }
+        )
+
+        const orderData = order.toJSON()
+        const checklistData = checklist.toJSON()
+
+        const checklistPdf = await generateChecklistPdf({ order: orderData, checklist: checklistData, signatureBuffer })
+
+        const s3Result = await s3Service.uploadFile(checklistPdf, `checklist_salida_${orderId}.pdf`, 'application/pdf', orderId)
+
+        const doc = await models.Order_Document.create({
+            order_id: orderId, document_type_id: 5,
+            original_name: s3Result.originalName, stored_name: s3Result.storedName,
+            file_type: 'application/pdf', s3_path: s3Result.s3Path, create_date: new Date()
+        })
+
+        res.json({ success: true, payload: doc })
     } catch (error) {
         console.log(error)
         res.json({ success: false, payload: error.message || error })

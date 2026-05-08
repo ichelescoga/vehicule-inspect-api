@@ -301,4 +301,258 @@ function drawCheck(doc, x, y, label, checked) {
     doc.text(label, x + 14, y - 1, { width: 200 })
 }
 
-module.exports = { generateCommentsPdf, generateTermsPdf }
+/**
+ * Generates the "Checklist de Salida" PDF
+ * @returns {Promise<Buffer>}
+ */
+function generateChecklistPdf({ order, checklist, signatureBuffer }) {
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ size: 'LETTER', margin: 0 })
+        const chunks = []
+        doc.on('data', c => chunks.push(c))
+        doc.on('end', () => resolve(Buffer.concat(chunks)))
+        doc.on('error', reject)
+
+        addHeaderFooter(doc)
+
+        let y = CONTENT_TOP
+
+        // Title
+        doc.font(FONT_BOLD).fontSize(14)
+        doc.text('CHECKLIST DE ENTREGA', MARGIN, y, { width: CONTENT_W, align: 'center' })
+        y += 20
+
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#999999')
+        doc.text('GRUPO KOREA AUTOS', MARGIN, y)
+        y += 14
+        doc.fillColor('#000000')
+
+        // Order info
+        const clientName = order.client?.name || 'N/A'
+        const clientNit = order.client?.nit || 'N/A'
+        const clientPhone = order.client?.authorization_cel || order.client?.office_cel || 'N/A'
+        const vehicleBrand = order.vehicule?.vehicule_brand?.name || ''
+        const vehicleLinea = order.vehicule?.linea || ''
+        const vehiclePlate = order.vehicule?.plate_id || 'N/A'
+        const vehicleModel = order.vehicule?.model || 'N/A'
+        const vehicleFuel = order.vehicule?.fuel || 'N/A'
+        const vehicleKm = order.vehicule?.km || 'N/A'
+        const numberPass = order.number_pass || order.id
+        const technicalName = order.technical?.name || 'N/A'
+        const invoiceNumber = checklist.invoice_number || 'N/A'
+        const deliveryTime = checklist.delivery_time || ''
+
+        // Info box
+        const boxH = 70
+        doc.rect(MARGIN, y, CONTENT_W, boxH).stroke()
+
+        doc.font(FONT_BOLD).fontSize(9)
+        doc.text('GUATEMALA', MARGIN + 6, y + 4)
+        const dateStr = new Date().toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        doc.font(FONT_REGULAR).fontSize(9)
+        doc.text(`Fecha: ${dateStr}`, MARGIN + 100, y + 4)
+        doc.text(`Hora de entrega: ${deliveryTime}`, MARGIN + 280, y + 4)
+
+        doc.font(FONT_BOLD).fontSize(9)
+        doc.text('Cliente:', MARGIN + 6, y + 18)
+        doc.font(FONT_REGULAR)
+        doc.text(clientName, MARGIN + 60, y + 18)
+        doc.text(`Tel\u00e9fono: ${clientPhone}`, MARGIN + 280, y + 18)
+        doc.text(`NIT: ${clientNit}`, MARGIN + 430, y + 18)
+
+        doc.font(FONT_BOLD).fontSize(9)
+        doc.text('Veh\u00edculo:', MARGIN + 6, y + 32)
+        doc.font(FONT_REGULAR)
+        doc.text(`${vehicleBrand} ${vehicleLinea}`, MARGIN + 60, y + 32)
+        doc.text(`Modelo: ${vehicleModel}`, MARGIN + 220, y + 32)
+        doc.text(`Placa: ${vehiclePlate}`, MARGIN + 330, y + 32)
+        doc.text(`Combustible: ${vehicleFuel}`, MARGIN + 430, y + 32)
+
+        doc.font(FONT_BOLD).fontSize(9)
+        doc.text('Pase:', MARGIN + 6, y + 46)
+        doc.font(FONT_REGULAR)
+        doc.text(`#${numberPass}`, MARGIN + 60, y + 46)
+        doc.text(`T\u00e9cnico: ${technicalName}`, MARGIN + 220, y + 46)
+        doc.text(`No. Factura: ${invoiceNumber}`, MARGIN + 430, y + 46)
+
+        y += boxH + 14
+
+        // ─── SECTION: NIVELES GENERALES ───
+        y = drawChecklistSection(doc, MARGIN, y, 'NIVELES GENERALES', [
+            ['Aceite para motor', checklist.oil_motor],
+            ['Aceite para caja de motor', checklist.oil_gearbox],
+            ['Aceite para caja mec\u00e1nica', checklist.oil_mechanical],
+            ['Aceite para tim\u00f3n', checklist.oil_steering],
+            ['Aceite de diferencial', checklist.oil_differential],
+            ['Refrigerante', checklist.coolant],
+            ['L\u00edquido de parabrisas', checklist.windshield_fluid],
+            ['L\u00edquido para frenos', checklist.brake_fluid],
+            ['Car wash', checklist.car_wash],
+        ])
+
+        y += 8
+
+        // ─── SECTION: AROS Y NEUMATICOS ───
+        if (y > CONTENT_BOTTOM - 160) {
+            doc.addPage()
+            addHeaderFooter(doc)
+            y = CONTENT_TOP
+        }
+
+        y = drawChecklistSection(doc, MARGIN, y, 'AROS Y NEUM\u00c1TICOS', [
+            ['Pernos', checklist.bolts],
+            ['Esp\u00e1rragos', checklist.studs],
+            ['Pernos torqueados', checklist.bolts_torqued],
+            ['Tap\u00f3n de aros', checklist.rim_caps],
+            ['Estado de aros', checklist.rim_condition],
+            ['Estado de neum\u00e1ticos', checklist.tire_condition],
+            ['Llanta de repuesto', checklist.spare_tire],
+            ['Herramienta', checklist.tools],
+        ])
+
+        y += 8
+
+        // ─── SECTION: ACCESORIOS Y TESTIGOS ───
+        if (y > CONTENT_BOTTOM - 160) {
+            doc.addPage()
+            addHeaderFooter(doc)
+            y = CONTENT_TOP
+        }
+
+        y = drawChecklistSection(doc, MARGIN, y, 'ACCESORIOS Y TESTIGOS', [
+            ['Check engine', checklist.check_engine],
+            ['ABS', checklist.abs_light],
+            ['Air bag', checklist.airbag_light],
+            ['TPMS', checklist.tpms_light],
+            ['Antiderrape', checklist.anti_skid],
+            ['Otros testigos', checklist.other_lights],
+        ])
+
+        if (checklist.other_lights_detail) {
+            doc.font(FONT_ITALIC).fontSize(9).fillColor('#666666')
+            doc.text(`Especifique: ${checklist.other_lights_detail}`, MARGIN + 10, y, { width: CONTENT_W - 20 })
+            y = doc.y + 6
+            doc.fillColor('#000000')
+        }
+
+        y += 8
+
+        // ─── ENTREGA DE REPUESTOS ───
+        if (y > CONTENT_BOTTOM - 80) {
+            doc.addPage()
+            addHeaderFooter(doc)
+            y = CONTENT_TOP
+        }
+
+        doc.font(FONT_BOLD).fontSize(11).fillColor('#283346')
+        doc.text('ENTREGA DE REPUESTOS REEMPLAZADOS', MARGIN, y)
+        y += 16
+        doc.fillColor('#000000')
+        doc.font(FONT_REGULAR).fontSize(10)
+        drawCheck(doc, MARGIN + 10, y, 'S\u00cd', checklist.spare_parts_delivered == 1)
+        drawCheck(doc, MARGIN + 80, y, 'NO', checklist.spare_parts_delivered != 1)
+        y += 18
+
+        // ─── OBSERVACIONES ───
+        if (checklist.observations) {
+            if (y > CONTENT_BOTTOM - 60) {
+                doc.addPage()
+                addHeaderFooter(doc)
+                y = CONTENT_TOP
+            }
+            doc.font(FONT_BOLD).fontSize(11).fillColor('#283346')
+            doc.text('OBSERVACIONES', MARGIN, y)
+            y += 14
+            doc.fillColor('#000000')
+            doc.rect(MARGIN, y, CONTENT_W, 40).stroke()
+            doc.font(FONT_REGULAR).fontSize(10)
+            doc.text(checklist.observations, MARGIN + 6, y + 6, { width: CONTENT_W - 12 })
+            y += 46
+        }
+
+        // ─── FIRMA DE ENTREGA ───
+        if (signatureBuffer) {
+            if (y > CONTENT_BOTTOM - 110) {
+                doc.addPage()
+                addHeaderFooter(doc)
+                y = CONTENT_TOP
+            }
+            y += 10
+            doc.font(FONT_BOLD).fontSize(11)
+            doc.text('FIRMA DE ENTREGA:', MARGIN, y)
+            y += 14
+            doc.image(signatureBuffer, MARGIN, y, { fit: [250, 80] })
+            y += 82
+            doc.moveTo(MARGIN, y).lineTo(MARGIN + 250, y).stroke()
+            y += 4
+            doc.font(FONT_REGULAR).fontSize(9)
+            doc.text(clientName, MARGIN, y)
+            y += 12
+            doc.fontSize(8).fillColor('#999999')
+            doc.text(`NIT: ${clientNit}`, MARGIN, y)
+            y += 12
+            doc.text(`Fecha: ${dateStr}`, MARGIN, y)
+        }
+
+        doc.end()
+    })
+}
+
+/**
+ * Draws a checklist section with header + rows of BIEN/NO/N/A
+ * Returns the new Y position
+ */
+function drawChecklistSection(doc, x, y, title, items) {
+    const colDesc = 220
+    const colBien = 80
+    const colNo = 80
+    const colNa = 80
+    const rowH = 16
+    const tableW = colDesc + colBien + colNo + colNa
+
+    // Section header
+    doc.font(FONT_BOLD).fontSize(11).fillColor('#283346')
+    doc.text(title, x, y)
+    y += 16
+    doc.fillColor('#000000')
+
+    // Table header
+    doc.rect(x, y, tableW, rowH).fill('#283346')
+    doc.font(FONT_BOLD).fontSize(9).fillColor('#FFFFFF')
+    doc.text('DESCRIPCI\u00d3N', x + 6, y + 3, { width: colDesc })
+    doc.text('BIEN', x + colDesc, y + 3, { width: colBien, align: 'center' })
+    doc.text('NO', x + colDesc + colBien, y + 3, { width: colNo, align: 'center' })
+    doc.text('N/A', x + colDesc + colBien + colNo, y + 3, { width: colNa, align: 'center' })
+    y += rowH
+    doc.fillColor('#000000')
+
+    // Rows
+    for (let i = 0; i < items.length; i++) {
+        const [label, value] = items[i]
+        const bg = i % 2 === 0 ? '#F6F7F7' : '#FFFFFF'
+        doc.rect(x, y, tableW, rowH).fill(bg)
+        doc.rect(x, y, tableW, rowH).stroke('#DDDDDD')
+
+        doc.font(FONT_REGULAR).fontSize(9).fillColor('#000000')
+        doc.text(label, x + 6, y + 3, { width: colDesc - 10 })
+
+        // Checkmarks
+        const checkY = y + 3
+        if (value === 'BIEN') {
+            doc.font(FONT_BOLD).fontSize(10).fillColor('#2E7D32')
+            doc.text('\u2713', x + colDesc, checkY, { width: colBien, align: 'center' })
+        } else if (value === 'NO') {
+            doc.font(FONT_BOLD).fontSize(10).fillColor('#C62828')
+            doc.text('\u2717', x + colDesc + colBien, checkY, { width: colNo, align: 'center' })
+        } else if (value === 'NA') {
+            doc.font(FONT_REGULAR).fontSize(9).fillColor('#999999')
+            doc.text('N/A', x + colDesc + colBien + colNo, checkY, { width: colNa, align: 'center' })
+        }
+        doc.fillColor('#000000')
+        y += rowH
+    }
+
+    return y
+}
+
+module.exports = { generateCommentsPdf, generateTermsPdf, generateChecklistPdf }
