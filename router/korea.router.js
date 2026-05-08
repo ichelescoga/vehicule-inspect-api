@@ -59,6 +59,10 @@ router.get('/healthcheck', (req, res) => {
     console.log('HealthCheck ok')
 })
 
+// Remote Signature (PUBLIC — no auth)
+router.get('/signature/:token', documentController.getSignatureData)
+router.post('/signature/:token/sign', upload.single('file'), documentController.submitRemoteSignature)
+
 // ============================================================
 // RUTAS PROTEGIDAS — tenant middleware (requiere JWT con companyId)
 // ============================================================
@@ -181,6 +185,7 @@ router.post('/createOrderComment', documentController.createOrderComment)
 router.get('/getOrderComment/:orderId', documentController.getOrderComment)
 router.put('/updateOrderComment/:id', documentController.updateOrderComment)
 router.post('/generateReceptionPdfs/:orderId', documentController.generateReceptionPdfs)
+router.post('/generateSignatureToken/:orderId', documentController.generateSignatureToken)
 
 // Quotation Files
 router.post('/uploadQuotationFile', upload.single('file'), uploadController.uploadQuotationFile)

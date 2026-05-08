@@ -28,6 +28,7 @@ var _Quotation_File = require("./Quotation_File");
 var _Order_Document_Type = require("./Order_Document_Type");
 var _Order_Document = require("./Order_Document");
 var _Order_Comment = require("./Order_Comment");
+var _Signature_Token = require("./Signature_Token");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -59,6 +60,7 @@ function initModels(sequelize) {
   var Order_Document_Type = _Order_Document_Type(sequelize, DataTypes);
   var Order_Document = _Order_Document(sequelize, DataTypes);
   var Order_Comment = _Order_Comment(sequelize, DataTypes);
+  var Signature_Token = _Signature_Token(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -145,6 +147,10 @@ function initModels(sequelize) {
 
   // Order Comment associations
   Order_Comment.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+
+  // Signature Token associations
+  Signature_Token.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Signature_Token, { as: "Signature_Tokens", foreignKey: "order_id"});
   Order_Header.hasMany(Order_Comment, { as: "Order_Comments", foreignKey: "order_id"});
 
   return {
@@ -177,6 +183,7 @@ function initModels(sequelize) {
     Order_Document_Type,
     Order_Document,
     Order_Comment,
+    Signature_Token,
   };
 }
 module.exports = initModels;

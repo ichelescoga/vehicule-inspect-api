@@ -1,4 +1,5 @@
 const s3Service = require('../services/s3Service')
+const crypto = require('crypto')
 const sequelize = require('../components/conn_sqlz');
 const initModels = require("../src/modelKorea/init-models");
 const models = initModels(sequelize);
@@ -238,6 +239,155 @@ exports.generateReceptionPdfs = async (req, res, next) => {
         ])
 
         res.json({ success: true, payload: { comments: commentsDoc, terms: termsDoc } })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+// ─── REMOTE SIGNATURE ───
+
+exports.generateSignatureToken = async (req, res, next) => {
+    try {
+        const orderId = parseInt(req.params.orderId)
+        const order = await models.Order_Header.findByPk(orderId)
+        if (!order) return res.json({ success: false, payload: 'Orden no encontrada' })
+
+        // Invalidate previous tokens for this order
+        await models.Signature_Token.update(
+            { status: 0 },
+            { where: { order_id: orderId, status: 1 } }
+        )
+
+        // Generate random token
+        const token = crypto.randomBytes(32).toString('hex')
+        const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours
+
+        const record = await models.Signature_Token.create({
+            order_id: orderId,
+            token: token,
+            expires_at: expiresAt,
+            create_date: new Date()
+        })
+
+        res.json({ success: true, payload: { token: record.token, expires_at: record.expires_at } })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+// PUBLIC — no auth required
+exports.getSignatureData = async (req, res, next) => {
+    try {
+        const token = req.params.token
+
+        const sigToken = await models.Signature_Token.findOne({
+            where: { token, status: 1 }
+        })
+
+        if (!sigToken) return res.json({ success: false, payload: 'Token invalido o expirado' })
+        if (new Date() > new Date(sigToken.expires_at)) return res.json({ success: false, payload: 'El link ha expirado. Solicite uno nuevo.' })
+        if (sigToken.signed_at) return res.json({ success: false, payload: 'Este documento ya fue firmado.' })
+
+        // Load order with quotation items
+        const order = await models.Order_Header.findOne({
+            where: { id: sigToken.order_id },
+            include: [
+                { model: models.Client, as: 'client' },
+                { model: models.Vehicle, as: 'vehicule', include: [{ model: models.Vehicle_Brand, as: 'vehicule_brand' }] },
+                { model: models.Vendor, as: 'vendor' },
+                { model: models.Technical, as: 'technical' },
+            ]
+        })
+
+        // Load quotation items
+        const items = await models.Service_Option_Assign.findAll({
+            where: { order_id: sigToken.order_id },
+            include: [
+                { model: models.Service_Option, as: 'service_option',
+                  include: [{ model: models.Service, as: 'service',
+                    include: [{ model: models.Service_Type, as: 'service_type' }]
+                  }]
+                }
+            ]
+        })
+
+        res.json({
+            success: true,
+            payload: {
+                order: order,
+                items: items,
+                expires_at: sigToken.expires_at,
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+// PUBLIC — no auth required
+exports.submitRemoteSignature = async (req, res, next) => {
+    try {
+        const token = req.params.token
+
+        const sigToken = await models.Signature_Token.findOne({
+            where: { token, status: 1 }
+        })
+
+        if (!sigToken) return res.json({ success: false, payload: 'Token invalido o expirado' })
+        if (new Date() > new Date(sigToken.expires_at)) return res.json({ success: false, payload: 'El link ha expirado.' })
+        if (sigToken.signed_at) return res.json({ success: false, payload: 'Ya fue firmado.' })
+
+        if (!req.file) return res.json({ success: false, payload: 'No se recibio la firma' })
+
+        // Upload signature to S3
+        const s3Result = await s3Service.uploadFile(
+            req.file.buffer,
+            `firma_autorizacion_${sigToken.order_id}.png`,
+            'image/png',
+            sigToken.order_id
+        )
+
+        // Save as Order_Document (type 1 = signature_authorization)
+        await models.Order_Document.create({
+            order_id: sigToken.order_id,
+            document_type_id: 1,
+            original_name: s3Result.originalName,
+            stored_name: s3Result.storedName,
+            file_type: 'image/png',
+            s3_path: s3Result.s3Path,
+            create_date: new Date()
+        })
+
+        // Mark token as signed
+        await models.Signature_Token.update(
+            { signed_at: new Date() },
+            { where: { id: sigToken.id } }
+        )
+
+        // Advance order to status 4 (Autorizacion) if currently at 3
+        const order = await models.Order_Header.findByPk(sigToken.order_id)
+        if (order && order.status === 3) {
+            const now = new Date()
+            await models.Order_Status_Log.update(
+                { end_date: now, description: 'Autorizado por el cliente con firma remota' },
+                { where: { order_id: sigToken.order_id, end_date: null } }
+            )
+            await models.Order_Status_Log.create({
+                order_id: sigToken.order_id,
+                status: 4,
+                start_date: now,
+                create_date: now
+            })
+            await models.Order_Header.update(
+                { status: 4, update_date: now },
+                { where: { id: sigToken.order_id } }
+            )
+        }
+
+        res.json({ success: true, payload: 'Firma registrada exitosamente' })
     } catch (error) {
         console.log(error)
         res.json({ success: false, payload: error.message || error })
