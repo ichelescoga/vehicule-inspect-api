@@ -375,7 +375,7 @@ function generateChecklistPdf({ order, checklist, signatureBuffer }) {
             ['Aceite de diferencial', checklist.oil_differential], ['Refrigerante', checklist.coolant],
             ['Líquido de parabrisas', checklist.windshield_fluid], ['Líquido para frenos', checklist.brake_fluid],
             ['Car wash', checklist.car_wash],
-        ])
+        ], '#1565C0')
         y += 8
 
         y = checkNewPage(doc, y, 160)
@@ -384,7 +384,7 @@ function generateChecklistPdf({ order, checklist, signatureBuffer }) {
             ['Pernos torqueados', checklist.bolts_torqued], ['Tapón de aros', checklist.rim_caps],
             ['Estado de aros', checklist.rim_condition], ['Estado de neumáticos', checklist.tire_condition],
             ['Llanta de repuesto', checklist.spare_tire], ['Herramienta', checklist.tools],
-        ])
+        ], '#00897B')
         y += 8
 
         y = checkNewPage(doc, y, 160)
@@ -392,7 +392,7 @@ function generateChecklistPdf({ order, checklist, signatureBuffer }) {
             ['Check engine', checklist.check_engine], ['ABS', checklist.abs_light],
             ['Air bag', checklist.airbag_light], ['TPMS', checklist.tpms_light],
             ['Antiderrape', checklist.anti_skid], ['Otros testigos', checklist.other_lights],
-        ])
+        ], '#EF6C00')
 
         if (checklist.other_lights_detail) {
             doc.font(FONT_ITALIC).fontSize(9).fillColor('#666666')

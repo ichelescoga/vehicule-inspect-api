@@ -97,7 +97,7 @@ function drawYesNo(doc, x, y, label, value) {
     return y + 22
 }
 
-function drawChecklistSection(doc, x, y, title, items) {
+function drawChecklistSection(doc, x, y, title, items, sectionColor = '#283346') {
     const colDesc = 220
     const colBien = 80
     const colNo = 80
@@ -105,9 +105,12 @@ function drawChecklistSection(doc, x, y, title, items) {
     const rowH = 16
     const tableW = colDesc + colBien + colNo + colNa
 
-    doc.font(FONT_BOLD).fontSize(11).fillColor('#283346')
-    doc.text(title, x, y)
-    y += 16
+    // Colored section header bar
+    const headerH = 22
+    doc.rect(x, y, tableW, headerH).fill(sectionColor)
+    doc.font(FONT_BOLD).fontSize(10).fillColor('#FFFFFF')
+    doc.text(title, x + 8, y + 5, { width: tableW - 16 })
+    y += headerH + 4
     doc.fillColor('#000000')
 
     doc.rect(x, y, tableW, rowH).fill('#283346')
