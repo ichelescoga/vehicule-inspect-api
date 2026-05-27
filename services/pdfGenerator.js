@@ -434,4 +434,116 @@ function generateChecklistPdf({ order, checklist, signatureBuffer }) {
     })
 }
 
-module.exports = { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf }
+// ═══════════════════════════════════════════════
+// QA / CONTROL DE CALIDAD PDF (tipo 10)
+// ═══════════════════════════════════════════════
+function generateQAPdf({ order, qa, qaFiles, signatureBuffer }) {
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ size: 'LETTER', margin: 0 })
+        const chunks = []
+        doc.on('data', c => chunks.push(c))
+        doc.on('end', () => resolve(Buffer.concat(chunks)))
+        doc.on('error', reject)
+
+        addHeaderFooter(doc)
+        let y = CONTENT_TOP
+
+        const clientName = order.client?.name || 'N/A'
+        const clientNit = order.client?.nit || 'N/A'
+        const vehicleBrand = order.vehicule?.vehicule_brand?.name || ''
+        const vehicleLinea = order.vehicule?.linea || ''
+        const vehiclePlate = order.vehicule?.plate_id || 'N/A'
+        const numberPass = order.number_pass || order.id
+        const technicalName = order.technical?.name || 'N/A'
+
+        // Title
+        doc.font(FONT_BOLD).fontSize(16).fillColor('#283346')
+        doc.text('CONTROL DE CALIDAD', MARGIN, y, { width: CONTENT_W, align: 'center' })
+        y += 22
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#999999')
+        doc.text('GRUPO KOREA AUTOS', MARGIN, y, { width: CONTENT_W, align: 'center' })
+        y += 16
+        doc.fillColor('#000000')
+
+        // Info box
+        const boxH = 32
+        doc.rect(MARGIN, y, CONTENT_W, boxH).lineWidth(0.5).stroke('#CCCCCC')
+        doc.font(FONT_REGULAR).fontSize(9)
+        doc.text(`Cliente: ${clientName}`, MARGIN + 6, y + 5)
+        doc.text(`NIT: ${clientNit}`, MARGIN + 220, y + 5)
+        doc.text(`Placa: ${vehiclePlate}`, MARGIN + 350, y + 5)
+        doc.text(`Vehículo: ${vehicleBrand} ${vehicleLinea}`, MARGIN + 6, y + 18)
+        doc.text(`Pase: #${numberPass}`, MARGIN + 280, y + 18)
+        doc.text(`Técnico: ${technicalName}`, MARGIN + 400, y + 18)
+        y += boxH + 12
+
+        // ─── Comentarios del técnico ───
+        y = drawSectionHeader(doc, MARGIN, y, 'COMENTARIOS DEL TÉCNICO', '▸', SECTION_COLORS.qa)
+        y = drawFieldBox(doc, MARGIN, y, null, qa.tech_comments, 50)
+
+        // ─── Comentarios del cliente de taller ───
+        y = drawSectionHeader(doc, MARGIN, y, 'COMENTARIOS DEL CLIENTE DE TALLER', '▸', '#1565C0')
+        y = drawFieldBox(doc, MARGIN, y, null, qa.client_comments, 50)
+
+        // ─── Videos adjuntos ───
+        y = checkNewPage(doc, y, 60)
+        y = drawSectionHeader(doc, MARGIN, y, 'VIDEOS ADJUNTOS', '▸', '#00897B')
+        if (qaFiles && qaFiles.length > 0) {
+            for (const file of qaFiles) {
+                const label = file.file_label === 'recorrido' ? 'Video de recorrido' : file.file_label === 'scanner' ? 'Video de scanner' : file.original_name
+                doc.font(FONT_REGULAR).fontSize(9)
+                doc.text(`• ${label}: ${file.s3_path}`, MARGIN + 6, y, { width: CONTENT_W - 12 })
+                y = doc.y + 4
+            }
+        } else {
+            doc.font(FONT_ITALIC).fontSize(9).fillColor('#999999')
+            doc.text('No se adjuntaron videos', MARGIN + 6, y)
+            y = doc.y + 4
+            doc.fillColor('#000000')
+        }
+        y += 10
+
+        // ─── Decisión ───
+        y = checkNewPage(doc, y, 80)
+        const decisionColor = qa.decision === 'approved' ? '#2E7D32' : qa.decision === 'rejected' ? '#C62828' : '#FF9800'
+        const decisionLabel = qa.decision === 'approved' ? 'APROBADO' : qa.decision === 'rejected' ? 'RECHAZADO' : 'PENDIENTE'
+
+        doc.font(FONT_BOLD).fontSize(9).fillColor('#283346')
+        doc.text('DECISIÓN:', MARGIN, y)
+        y += 14
+        doc.fillColor('#000000')
+        drawChip(doc, MARGIN, y, decisionLabel, true, decisionColor)
+        y += 24
+
+        if (qa.decision === 'rejected' && qa.reject_observations) {
+            y = drawFieldBox(doc, MARGIN, y, 'OBSERVACIONES DE RECHAZO', qa.reject_observations, 45)
+        }
+
+        // ─── Jefe de taller ───
+        if (qa.qa_manager_name) {
+            doc.font(FONT_BOLD).fontSize(9).fillColor('#283346')
+            doc.text('JEFE DE TALLER:', MARGIN, y)
+            y += 14
+            doc.font(FONT_REGULAR).fontSize(10).fillColor('#000000')
+            doc.text(qa.qa_manager_name, MARGIN, y)
+            y += 16
+        }
+
+        // ─── Firma ───
+        if (signatureBuffer) {
+            y = checkNewPage(doc, y, 110)
+            y += 6
+            y = drawSectionHeader(doc, MARGIN, y, 'FIRMA', '▸', SECTION_COLORS.signature)
+            doc.image(signatureBuffer, MARGIN, y, { fit: [250, 80] }); y += 82
+            doc.moveTo(MARGIN, y).lineTo(MARGIN + 250, y).stroke(); y += 4
+            doc.font(FONT_REGULAR).fontSize(9)
+            doc.text(qa.qa_manager_name || '', MARGIN, y); y += 12
+            doc.fontSize(8).fillColor('#999999')
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-GT')}`, MARGIN, y)
+        }
+
+        doc.end()
+    })
+}
+
+module.exports = { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf, generateQAPdf }

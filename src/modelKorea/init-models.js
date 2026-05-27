@@ -30,6 +30,8 @@ var _Order_Document = require("./Order_Document");
 var _Order_Comment = require("./Order_Comment");
 var _Signature_Token = require("./Signature_Token");
 var _Order_Checklist = require("./Order_Checklist");
+var _Order_QA = require("./Order_QA");
+var _QA_File = require("./QA_File");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -63,6 +65,8 @@ function initModels(sequelize) {
   var Order_Comment = _Order_Comment(sequelize, DataTypes);
   var Signature_Token = _Signature_Token(sequelize, DataTypes);
   var Order_Checklist = _Order_Checklist(sequelize, DataTypes);
+  var Order_QA = _Order_QA(sequelize, DataTypes);
+  var QA_File = _QA_File(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -159,6 +163,12 @@ function initModels(sequelize) {
   Order_Checklist.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
   Order_Header.hasMany(Order_Checklist, { as: "Order_Checklists", foreignKey: "order_id"});
 
+  Order_QA.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_QA, { as: "Order_QAs", foreignKey: "order_id"});
+  QA_File.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  QA_File.belongsTo(Order_QA, { as: "qa", foreignKey: "qa_id"});
+  Order_QA.hasMany(QA_File, { as: "QA_Files", foreignKey: "qa_id"});
+
   return {
     Company,
     Client,
@@ -191,6 +201,8 @@ function initModels(sequelize) {
     Order_Comment,
     Signature_Token,
     Order_Checklist,
+    Order_QA,
+    QA_File,
   };
 }
 module.exports = initModels;

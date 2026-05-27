@@ -216,4 +216,16 @@ router.post('/uploadSparePartFile', upload.single('file'), uploadController.uplo
 router.get('/getSparePartFiles/:orderId', uploadController.getSparePartFiles)
 router.put('/deleteSparePartFile/:id', uploadController.deleteSparePartFile)
 
+// Quality Control (QA)
+const qaController = require('../controller/qa.controller')
+router.post('/createOrderQA', qaController.createOrderQA)
+router.get('/getOrderQA/:orderId', qaController.getOrderQA)
+router.put('/updateOrderQA/:id', qaController.updateOrderQA)
+router.post('/uploadQAFile', upload.single('file'), qaController.uploadQAFile)
+router.get('/getQAFiles/:orderId', qaController.getQAFiles)
+router.put('/deleteQAFile/:id', qaController.deleteQAFile)
+router.post('/approveQA/:orderId', upload.single('file'), qaController.approveQA)
+router.post('/rejectQA/:orderId', upload.single('file'), qaController.rejectQA)
+router.post('/generateQAPdf/:orderId', qaController.generateQAPdf)
+
 module.exports = router
