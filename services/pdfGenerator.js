@@ -243,7 +243,8 @@ function generateTermsPdf({ order, signatureBuffer }) {
             ['X. TIEMPOS DE ENTREGA', 'Los tiempos de entrega son estimados y pueden variar.'],
             ['XI. VEHÍCULOS NO RETIRADOS', 'Después de 5 días se notificará, 15 días se cobrará parqueo y 30 días se iniciarán acciones legales.'],
             ['XII. GARANTÍA', 'La garantía cubre exclusivamente los trabajos realizados y repuestos instalados por Korea Autos. No cubre fallas distintas o no relacionadas con la reparación efectuada, aun cuando se presenten posteriormente. El tiempo de garantía de los trabajos es de 30 días calendario.'],
-            ['XIII. ACEPTACIÓN', 'Declaro que he leído y acepto los Términos y Condiciones de Servicio de Korea Autos.'],
+            ['XIII. TRASLADO POST-ENTREGA', 'Cualquier falla que presente el vehículo luego de haber sido entregado, el cliente asume la responsabilidad de trasladarlo a nuestras instalaciones para evaluación y diagnóstico.'],
+            ['XIV. ACEPTACIÓN', 'Declaro que he leído y acepto los Términos y Condiciones de Servicio de Korea Autos.'],
         ]
 
         for (const [heading, body] of terms) {

@@ -63,6 +63,14 @@ router.get('/healthcheck', (req, res) => {
 router.get('/signature/:token', documentController.getSignatureData)
 router.post('/signature/:token/sign', upload.single('file'), documentController.submitRemoteSignature)
 
+// Remote Checkout Signature (PUBLIC — no auth)
+router.get('/checkout/:token', documentController.getCheckoutData)
+router.post('/checkout/:token/sign', upload.single('file'), documentController.submitCheckoutSignature)
+
+// Remote Reception Form (PUBLIC — no auth)
+router.get('/reception/:token', documentController.getReceptionData)
+router.post('/reception/:token/sign', upload.single('file'), documentController.submitReceptionForm)
+
 // ============================================================
 // RUTAS PROTEGIDAS — tenant middleware (requiere JWT con companyId)
 // ============================================================
@@ -192,6 +200,8 @@ router.post('/createOrderChecklist', documentController.createOrderChecklist)
 router.get('/getOrderChecklist/:orderId', documentController.getOrderChecklist)
 router.put('/updateOrderChecklist/:id', documentController.updateOrderChecklist)
 router.post('/generateChecklistPdf/:orderId', documentController.generateChecklistPdf)
+router.post('/generateCheckoutToken/:orderId', documentController.generateCheckoutToken)
+router.post('/generateReceptionToken/:orderId', documentController.generateReceptionToken)
 
 // Quotation Files
 router.post('/uploadQuotationFile', upload.single('file'), uploadController.uploadQuotationFile)

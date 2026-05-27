@@ -10,7 +10,9 @@ exports.createOrder = async (req, res, next) => {
             client_id: req.body.client_id,
             vendor_id: req.body.vendor_id,
             vehicule_id: req.body.vehicule_id,
-            technical_id: req.body.technical_id
+            technical_id: req.body.technical_id,
+            warranty: req.body.warranty,
+            warranty_comment: req.body.warranty_comment
         }
         let result = await orderRepository.createOrder(params, req.companyId)
         console.log(result)
@@ -145,7 +147,9 @@ exports.updateOrder = async (req, res, next) => {
             client_id: req.body.client_id,
             vendor_id: req.body.vendor_id,
             vehicule_id: req.body.vehicule_id,
-            technical_id: req.body.technical_id
+            technical_id: req.body.technical_id,
+            warranty: req.body.warranty,
+            warranty_comment: req.body.warranty_comment
         }
         let result = await orderRepository.updateOrder(req.params.id, params)
         console.log(result)

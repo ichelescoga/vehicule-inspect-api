@@ -82,6 +82,15 @@ module.exports = function(sequelize, DataTypes) {
         model: 'Company',
         key: 'id'
       }
+    },
+    warranty: {
+      type: DataTypes.TINYINT,
+      allowNull: true,
+      defaultValue: 0
+    },
+    warranty_comment: {
+      type: DataTypes.STRING(500),
+      allowNull: true
     }
   }, {
     sequelize,

@@ -20,6 +20,8 @@ let OrderRepository = function(){
             vendor_id: params.vendor_id,
             vehicule_id: params.vehicule_id,
             technical_id: params.technical_id,
+            warranty: params.warranty || 0,
+            warranty_comment: params.warranty_comment,
             company_id: companyId,
             create_date: new Date(),
             status: 1
@@ -138,6 +140,8 @@ let OrderRepository = function(){
             vendor_id: params.vendor_id,
             vehicule_id: params.vehicule_id,
             technical_id: params.technical_id,
+            warranty: params.warranty,
+            warranty_comment: params.warranty_comment,
             update_date: new Date()
         }, { where: { id: id } })
     }
