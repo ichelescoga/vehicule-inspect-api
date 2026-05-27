@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const sequelize = require('../components/conn_sqlz');
 const initModels = require("../src/modelKorea/init-models");
 const models = initModels(sequelize);
-const { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf } = require('../services/pdfGenerator');
+const { generateChecklistPdf, generateReceptionUnifiedPdf, generateQAPdf } = require('../services/pdfGenerator');
 
 // ─── ORDER DOCUMENT ───
 
