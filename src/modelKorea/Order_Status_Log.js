@@ -34,6 +34,11 @@ module.exports = function(sequelize, DataTypes) {
     create_date: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    cycle: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
     }
   }, {
     sequelize,

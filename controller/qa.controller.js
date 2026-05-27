@@ -151,19 +151,24 @@ exports.rejectQA = async (req, res, next) => {
             signature_s3_path: signaturePath,
         })
 
-        // Return order to stage 5 (Inicio de Proceso)
+        // Return order to stage 5 (Inicio de Proceso) with new cycle
         const order = await models.Order_Header.findByPk(orderId)
         if (order) {
+            // Get current max cycle for this order
+            const maxCycleResult = await models.Order_Status_Log.max('cycle', { where: { order_id: orderId } })
+            const newCycle = (maxCycleResult || 1) + 1
+
             // Close current status log
             await models.Order_Status_Log.update(
                 { end_date: new Date(), description: `Rechazado QA: ${reject_observations}` },
                 { where: { order_id: orderId, status: order.status, end_date: null } }
             )
-            // Create new status log at stage 5
+            // Create new status log at stage 5 with incremented cycle
             await models.Order_Status_Log.create({
                 order_id: orderId, status: 5,
                 start_date: new Date(), create_date: new Date(),
-                description: `Regresado desde QA: ${reject_observations}`
+                description: `Regresado desde QA: ${reject_observations}`,
+                cycle: newCycle
             })
             await models.Order_Header.update({ status: 5, update_date: new Date() }, { where: { id: orderId } })
         }

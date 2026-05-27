@@ -162,12 +162,20 @@ let OrderRepository = function(){
             { end_date: now, description: description || null },
             { where: { order_id: id, end_date: null } }
         )
-        // Create new status log
+        // Get current cycle
+        const currentLog = await models.Order_Status_Log.findOne({
+            where: { order_id: id },
+            order: [['id', 'DESC']]
+        })
+        const currentCycle = currentLog?.cycle || 1
+
+        // Create new status log with same cycle
         await models.Order_Status_Log.create({
             order_id: id,
             status: status,
             start_date: now,
-            create_date: now
+            create_date: now,
+            cycle: currentCycle
         })
         // Update order header
         return await models.Order_Header.update(
