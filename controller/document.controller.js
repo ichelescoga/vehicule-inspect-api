@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const sequelize = require('../components/conn_sqlz');
 const initModels = require("../src/modelKorea/init-models");
 const models = initModels(sequelize);
-const { generateCommentsPdf, generateTermsPdf, generateChecklistPdf } = require('../services/pdfGenerator');
+const { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf } = require('../services/pdfGenerator');
 
 // ─── ORDER DOCUMENT ───
 
@@ -215,30 +215,18 @@ exports.generateReceptionPdfs = async (req, res, next) => {
         const orderData = order.toJSON()
         const commentData = comment.toJSON()
 
-        const [commentsPdf, termsPdf] = await Promise.all([
-            generateCommentsPdf({ order: orderData, comment: commentData, signatureBuffer }),
-            generateTermsPdf({ order: orderData, signatureBuffer }),
-        ])
+        // Generate unified PDF (comentarios + términos in one document)
+        const unifiedPdf = await generateReceptionUnifiedPdf({ order: orderData, comment: commentData, signatureBuffer })
 
-        const [commentsS3, termsS3] = await Promise.all([
-            s3Service.uploadFile(commentsPdf, `comentarios_cliente_${orderId}.pdf`, 'application/pdf', orderId),
-            s3Service.uploadFile(termsPdf, `terminos_condiciones_${orderId}.pdf`, 'application/pdf', orderId),
-        ])
+        const unifiedS3 = await s3Service.uploadFile(unifiedPdf, `recepcion_vehiculo_${orderId}.pdf`, 'application/pdf', orderId)
 
-        const [commentsDoc, termsDoc] = await Promise.all([
-            models.Order_Document.create({
-                order_id: orderId, document_type_id: 3,
-                original_name: commentsS3.originalName, stored_name: commentsS3.storedName,
-                file_type: 'application/pdf', s3_path: commentsS3.s3Path, create_date: new Date()
-            }),
-            models.Order_Document.create({
-                order_id: orderId, document_type_id: 4,
-                original_name: termsS3.originalName, stored_name: termsS3.storedName,
-                file_type: 'application/pdf', s3_path: termsS3.s3Path, create_date: new Date()
-            }),
-        ])
+        const unifiedDoc = await models.Order_Document.create({
+            order_id: orderId, document_type_id: 3,
+            original_name: unifiedS3.originalName, stored_name: unifiedS3.storedName,
+            file_type: 'application/pdf', s3_path: unifiedS3.s3Path, create_date: new Date()
+        })
 
-        res.json({ success: true, payload: { comments: commentsDoc, terms: termsDoc } })
+        res.json({ success: true, payload: { reception: unifiedDoc } })
     } catch (error) {
         console.log(error)
         res.json({ success: false, payload: error.message || error })
@@ -420,32 +408,18 @@ exports.submitRemoteSignature = async (req, res, next) => {
                 const orderData = fullOrder.toJSON()
                 const commentData = comment.toJSON()
 
-                const [commentsPdf, termsPdf] = await Promise.all([
-                    generateCommentsPdf({ order: orderData, comment: commentData, signatureBuffer: sigBuffer }),
-                    generateTermsPdf({ order: orderData, signatureBuffer: sigBuffer }),
-                ])
+                const unifiedPdf = await generateReceptionUnifiedPdf({ order: orderData, comment: commentData, signatureBuffer: sigBuffer })
 
-                const [commentsS3, termsS3] = await Promise.all([
-                    s3Service.uploadFile(commentsPdf, `comentarios_cliente_${sigToken.order_id}.pdf`, 'application/pdf', sigToken.order_id),
-                    s3Service.uploadFile(termsPdf, `terminos_condiciones_${sigToken.order_id}.pdf`, 'application/pdf', sigToken.order_id),
-                ])
+                const unifiedS3 = await s3Service.uploadFile(unifiedPdf, `recepcion_vehiculo_${sigToken.order_id}.pdf`, 'application/pdf', sigToken.order_id)
 
-                const [commentsDoc, termsDoc] = await Promise.all([
-                    models.Order_Document.create({
-                        order_id: sigToken.order_id, document_type_id: 3,
-                        original_name: commentsS3.originalName, stored_name: commentsS3.storedName,
-                        file_type: 'application/pdf', s3_path: commentsS3.s3Path, create_date: new Date()
-                    }),
-                    models.Order_Document.create({
-                        order_id: sigToken.order_id, document_type_id: 4,
-                        original_name: termsS3.originalName, stored_name: termsS3.storedName,
-                        file_type: 'application/pdf', s3_path: termsS3.s3Path, create_date: new Date()
-                    }),
-                ])
+                await models.Order_Document.create({
+                    order_id: sigToken.order_id, document_type_id: 3,
+                    original_name: unifiedS3.originalName, stored_name: unifiedS3.storedName,
+                    file_type: 'application/pdf', s3_path: unifiedS3.s3Path, create_date: new Date()
+                })
 
                 documentUrls = [
-                    { name: 'Comentarios del cliente', url: commentsS3.s3Path },
-                    { name: 'Terminos y condiciones', url: termsS3.s3Path },
+                    { name: 'Recepción de vehículo', url: unifiedS3.s3Path },
                 ]
             }
         } catch (e) {
@@ -1006,32 +980,18 @@ exports.submitReceptionForm = async (req, res, next) => {
             const orderData = fullOrder.toJSON()
             const commentObj = comment.toJSON()
 
-            const [commentsPdf, termsPdf] = await Promise.all([
-                generateCommentsPdf({ order: orderData, comment: commentObj, signatureBuffer }),
-                generateTermsPdf({ order: orderData, signatureBuffer }),
-            ])
+            const unifiedPdf = await generateReceptionUnifiedPdf({ order: orderData, comment: commentObj, signatureBuffer })
 
-            const [commentsS3, termsS3] = await Promise.all([
-                s3Service.uploadFile(commentsPdf, `comentarios_cliente_${orderId}.pdf`, 'application/pdf', orderId),
-                s3Service.uploadFile(termsPdf, `terminos_condiciones_${orderId}.pdf`, 'application/pdf', orderId),
-            ])
+            const unifiedS3 = await s3Service.uploadFile(unifiedPdf, `recepcion_vehiculo_${orderId}.pdf`, 'application/pdf', orderId)
 
-            await Promise.all([
-                models.Order_Document.create({
-                    order_id: orderId, document_type_id: 3,
-                    original_name: commentsS3.originalName, stored_name: commentsS3.storedName,
-                    file_type: 'application/pdf', s3_path: commentsS3.s3Path, create_date: new Date()
-                }),
-                models.Order_Document.create({
-                    order_id: orderId, document_type_id: 4,
-                    original_name: termsS3.originalName, stored_name: termsS3.storedName,
-                    file_type: 'application/pdf', s3_path: termsS3.s3Path, create_date: new Date()
-                }),
-            ])
+            await models.Order_Document.create({
+                order_id: orderId, document_type_id: 3,
+                original_name: unifiedS3.originalName, stored_name: unifiedS3.storedName,
+                file_type: 'application/pdf', s3_path: unifiedS3.s3Path, create_date: new Date()
+            })
 
             documentUrls = [
-                { name: 'Comentarios del cliente', url: commentsS3.s3Path },
-                { name: 'Terminos y condiciones', url: termsS3.s3Path },
+                { name: 'Recepción de vehículo', url: unifiedS3.s3Path },
             ]
         } catch (e) {
             console.log('Error generating reception PDFs:', e.message)
