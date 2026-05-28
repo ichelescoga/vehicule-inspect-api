@@ -289,11 +289,18 @@ exports.getSignatureData = async (req, res, next) => {
             ]
         })
 
+        // Load quotation file
+        const quotationFile = await models.Quotation_File.findOne({
+            where: { order_id: sigToken.order_id, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+
         res.json({
             success: true,
             payload: {
                 order: order,
                 expires_at: sigToken.expires_at,
+                quotation: quotationFile ? { url: quotationFile.s3_path, name: quotationFile.original_name, type: quotationFile.file_type } : null,
             }
         })
     } catch (error) {
@@ -362,68 +369,69 @@ exports.submitRemoteSignature = async (req, res, next) => {
             )
         }
 
-        // Generate reception PDFs with the new signature
+        // Generate authorization PDF
         let documentUrls = []
         try {
-            const comment = await models.Order_Comment.findOne({
+            const fullOrder = await models.Order_Header.findOne({
+                where: { id: sigToken.order_id },
+                include: [
+                    { model: models.Client, as: 'client' },
+                    { model: models.Vehicle, as: 'vehicule', include: [{ model: models.Vehicle_Brand, as: 'vehicule_brand' }] },
+                ]
+            })
+
+            // Load quotation file buffer (if image)
+            let quotationBuffer = null
+            let quotationType = null
+            const qFile = await models.Quotation_File.findOne({
                 where: { order_id: sigToken.order_id, status: 1 },
                 order: [['create_date', 'DESC']]
             })
-
-            if (comment) {
-                const fullOrder = await models.Order_Header.findOne({
-                    where: { id: sigToken.order_id },
-                    include: [
-                        { model: models.Client, as: 'client' },
-                        { model: models.Vehicle, as: 'vehicule', include: [{ model: models.Vehicle_Brand, as: 'vehicule_brand' }] },
-                    ]
-                })
-
-                // Load the signature we just uploaded
-                const newSigDoc = await models.Order_Document.findOne({
-                    where: { order_id: sigToken.order_id, document_type_id: 1, status: 1 },
-                    order: [['create_date', 'DESC']]
-                })
-                let sigBuffer = null
-                if (newSigDoc) {
+            if (qFile) {
+                quotationType = qFile.file_type
+                if (qFile.file_type.startsWith('image/')) {
                     try {
                         const https = require('https')
-                        sigBuffer = await new Promise((resolve, reject) => {
-                            https.get(newSigDoc.s3_path, (response) => {
+                        quotationBuffer = await new Promise((resolve, reject) => {
+                            https.get(qFile.s3_path, (response) => {
                                 const chunks = []
                                 response.on('data', c => chunks.push(c))
                                 response.on('end', () => resolve(Buffer.concat(chunks)))
                                 response.on('error', reject)
                             }).on('error', reject)
                         })
-                    } catch (e) { console.log('Could not load signature for PDFs:', e.message) }
+                    } catch (e) { console.log('Could not load quotation image:', e.message) }
                 }
-
-                // Soft-delete existing PDFs (types 3, 4)
-                await models.Order_Document.update(
-                    { status: 0 },
-                    { where: { order_id: sigToken.order_id, document_type_id: [3, 4], status: 1 } }
-                )
-
-                const orderData = fullOrder.toJSON()
-                const commentData = comment.toJSON()
-
-                const unifiedPdf = await generateReceptionUnifiedPdf({ order: orderData, comment: commentData, signatureBuffer: sigBuffer })
-
-                const unifiedS3 = await s3Service.uploadFile(unifiedPdf, `recepcion_vehiculo_${sigToken.order_id}.pdf`, 'application/pdf', sigToken.order_id)
-
-                await models.Order_Document.create({
-                    order_id: sigToken.order_id, document_type_id: 3,
-                    original_name: unifiedS3.originalName, stored_name: unifiedS3.storedName,
-                    file_type: 'application/pdf', s3_path: unifiedS3.s3Path, create_date: new Date()
-                })
-
-                documentUrls = [
-                    { name: 'Recepción de vehículo', url: unifiedS3.s3Path },
-                ]
             }
+
+            // Soft-delete existing authorization PDFs (type 5)
+            await models.Order_Document.update(
+                { status: 0 },
+                { where: { order_id: sigToken.order_id, document_type_id: 5, status: 1 } }
+            )
+
+            const orderData = fullOrder.toJSON()
+            const { generateAuthorizationPdf } = require('../services/pdfGenerator')
+            const authPdf = await generateAuthorizationPdf({
+                order: orderData,
+                signatureBuffer: req.file.buffer,
+                quotationBuffer,
+                quotationType
+            })
+
+            const authS3 = await s3Service.uploadFile(authPdf, `autorizacion_${sigToken.order_id}.pdf`, 'application/pdf', sigToken.order_id)
+
+            await models.Order_Document.create({
+                order_id: sigToken.order_id, document_type_id: 5,
+                original_name: authS3.originalName, stored_name: authS3.storedName,
+                file_type: 'application/pdf', s3_path: authS3.s3Path, create_date: new Date()
+            })
+
+            documentUrls = [
+                { name: 'Autorización de servicios', url: authS3.s3Path },
+            ]
         } catch (e) {
-            console.log('Error generating reception PDFs after remote sign:', e.message)
+            console.log('Error generating authorization PDF:', e.message)
         }
 
         res.json({ success: true, payload: { message: 'Firma registrada exitosamente', documents: documentUrls } })

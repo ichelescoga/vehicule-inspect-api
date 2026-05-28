@@ -546,4 +546,122 @@ function generateQAPdf({ order, qa, qaFiles, signatureBuffer }) {
     })
 }
 
-module.exports = { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf, generateQAPdf }
+// ═══════════════════════════════════════════════
+// PDF Autorización de Servicios (tipo 5)
+// Header + info cliente + cotización embebida + firma
+// ═══════════════════════════════════════════════
+
+function generateAuthorizationPdf({ order, signatureBuffer, quotationBuffer, quotationType }) {
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ size: 'LETTER', margin: 0 })
+        const chunks = []
+        doc.on('data', c => chunks.push(c))
+        doc.on('end', () => resolve(Buffer.concat(chunks)))
+        doc.on('error', reject)
+
+        addHeaderFooter(doc)
+        let y = CONTENT_TOP
+
+        const clientName = order.client?.name || 'N/A'
+        const clientNit = order.client?.nit || 'N/A'
+        const clientPhone = order.client?.phone || 'N/A'
+        const vehicleBrand = order.vehicule?.vehicule_brand?.name || ''
+        const vehicleLinea = order.vehicule?.linea || ''
+        const vehiclePlate = order.vehicule?.plate_id || 'N/A'
+        const numberPass = order.number_pass || order.id
+
+        // Title
+        doc.font(FONT_BOLD).fontSize(16).fillColor('#283346')
+        doc.text('AUTORIZACIÓN DE SERVICIOS', MARGIN, y, { width: CONTENT_W, align: 'center' })
+        y += 22
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#999999')
+        doc.text('GRUPO KOREA AUTOS', MARGIN, y, { width: CONTENT_W, align: 'center' })
+        y += 16
+        doc.fillColor('#000000')
+
+        // Info box
+        const boxH = 32
+        doc.rect(MARGIN, y, CONTENT_W, boxH).lineWidth(0.5).stroke('#CCCCCC')
+        doc.font(FONT_REGULAR).fontSize(9)
+        doc.text(`Cliente: ${clientName}`, MARGIN + 6, y + 5)
+        doc.text(`NIT: ${clientNit}`, MARGIN + 220, y + 5)
+        doc.text(`Tel: ${clientPhone}`, MARGIN + 350, y + 5)
+        doc.text(`Vehículo: ${vehicleBrand} ${vehicleLinea}`, MARGIN + 6, y + 18)
+        doc.text(`Placa: ${vehiclePlate}`, MARGIN + 350, y + 18)
+        doc.text(`Pase: #${numberPass}`, MARGIN + 440, y + 18)
+        y += boxH + 12
+
+        // Authorization text
+        doc.font(FONT_REGULAR).fontSize(9).fillColor('#283346')
+        doc.text(
+            'Por medio de la presente, autorizo a Grupo Korea Autos a realizar los servicios detallados en la cotización adjunta. ' +
+            'Acepto los términos, precios y condiciones establecidos.',
+            MARGIN, y, { width: CONTENT_W }
+        )
+        y += 36
+
+        // Quotation section
+        y = drawSectionHeader(doc, MARGIN, y, 'COTIZACIÓN ADJUNTA', '▸', '#7B1FA2')
+
+        if (quotationBuffer && quotationType && quotationType.startsWith('image/')) {
+            // Embed quotation image
+            const imgMaxW = CONTENT_W
+            const imgMaxH = 350
+            try {
+                const img = doc.openImage(quotationBuffer)
+                const scale = Math.min(imgMaxW / img.width, imgMaxH / img.height, 1)
+                const imgW = img.width * scale
+                const imgH = img.height * scale
+
+                y = checkNewPage(doc, y, imgH + 20)
+                doc.image(quotationBuffer, MARGIN, y, { width: imgW, height: imgH })
+                y += imgH + 12
+            } catch (e) {
+                doc.font(FONT_ITALIC).fontSize(9).fillColor('#999999')
+                doc.text('No se pudo cargar la imagen de cotización.', MARGIN, y)
+                y += 16
+            }
+        } else if (quotationBuffer) {
+            doc.font(FONT_REGULAR).fontSize(9).fillColor('#666666')
+            doc.text('Cotización adjunta en formato PDF (ver documento enviado por WhatsApp).', MARGIN, y)
+            y += 16
+        } else {
+            doc.font(FONT_ITALIC).fontSize(9).fillColor('#999999')
+            doc.text('No se adjuntó cotización.', MARGIN, y)
+            y += 16
+        }
+
+        y += 8
+
+        // Date
+        doc.font(FONT_REGULAR).fontSize(9).fillColor('#283346')
+        doc.text(`Fecha de autorización: ${new Date().toLocaleDateString('es-GT')}`, MARGIN, y)
+        y += 20
+
+        // Signature
+        y = checkNewPage(doc, y, 100)
+        y = drawSectionHeader(doc, MARGIN, y, 'FIRMA DEL CLIENTE', '▸', '#2E7D32')
+
+        if (signatureBuffer) {
+            try {
+                doc.image(signatureBuffer, MARGIN, y, { width: 200, height: 80 })
+                y += 85
+            } catch (e) {
+                doc.font(FONT_ITALIC).fontSize(9).fillColor('#999999')
+                doc.text('Firma no disponible', MARGIN, y)
+                y += 14
+            }
+        }
+
+        doc.moveTo(MARGIN, y).lineTo(MARGIN + 250, y).lineWidth(0.5).stroke('#283346')
+        y += 4
+        doc.font(FONT_REGULAR).fontSize(8).fillColor('#666666')
+        doc.text(clientName, MARGIN, y)
+        y += 10
+        doc.text(`NIT: ${clientNit}`, MARGIN, y)
+
+        doc.end()
+    })
+}
+
+module.exports = { generateCommentsPdf, generateTermsPdf, generateChecklistPdf, generateReceptionUnifiedPdf, generateQAPdf, generateAuthorizationPdf }
