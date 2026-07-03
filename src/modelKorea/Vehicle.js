@@ -39,6 +39,14 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
+    vehicle_line_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Vehicle_Line',
+        key: 'id'
+      }
+    },
     create_date: {
       type: DataTypes.DATE,
       allowNull: true

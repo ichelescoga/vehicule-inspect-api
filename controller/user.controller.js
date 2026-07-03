@@ -46,7 +46,7 @@ exports.getPendingRequestsCount = async (req, res, next) => {
 
 exports.approveAccount = async (req, res, next) => {
     try {
-        const result = await userRepository.approveAccount(req.params.id, req.body.password, req.body.rolId)
+        const result = await userRepository.approveAccount(req.params.id, req.body.password, req.body.rolId, req.body.companyId)
         res.json({ success: true, payload: result })
     } catch(error) {
         console.log(error)

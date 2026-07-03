@@ -33,7 +33,7 @@ let UserRepository = function(){
         })
     }
 
-    let approveAccount = async(id, password, rolId) => {
+    let approveAccount = async(id, password, rolId, companyId) => {
         const request = await models.Account_Request.findByPk(id)
         if (!request) throw new Error('Solicitud no encontrada')
         if (request.status !== 1) throw new Error('La solicitud ya fue procesada')
@@ -45,15 +45,17 @@ let UserRepository = function(){
             username: request.name,
             email: request.email,
             password: hashedPassword,
+            company_id: companyId || null,
             status: 1,
             created_at: new Date()
         })
 
-        // Assign role selected by admin
-        if (rolId) {
+        // Assign role to company
+        if (rolId && companyId) {
             await models.User_Rol_Assign.create({
                 user_id: user.id,
                 rol_id: rolId,
+                company_id: companyId,
                 status: 1
             })
         }

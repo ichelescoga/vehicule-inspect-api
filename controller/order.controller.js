@@ -1,4 +1,5 @@
 const orderRepository = require('../repository/OrderRepository')
+const waNotifier = require('../services/whatsappNotifier')
 
 exports.createOrder = async (req, res, next) => {
     try{
@@ -24,6 +25,18 @@ exports.createOrder = async (req, res, next) => {
             })
             return
         }
+
+        // WhatsApp notification (non-blocking)
+        orderRepository.getOrderById(result.id).then(fullOrder => {
+            if (fullOrder) {
+                waNotifier.notifyVehicleEntry(
+                    fullOrder,
+                    fullOrder.client,
+                    fullOrder.vehicule,
+                    fullOrder.vendor
+                ).catch(err => console.error('[WA] notifyVehicleEntry error:', err.message))
+            }
+        }).catch(() => {})
 
         res.json({
             success: true,
@@ -189,6 +202,19 @@ exports.updateOrderStatus = async (req, res, next) => {
                 payload: result
             })
             return
+        }
+
+        // WhatsApp notification on status 9 (vehicle delivered) — non-blocking
+        if (req.body.status === 9) {
+            orderRepository.getOrderById(req.params.id).then(fullOrder => {
+                if (fullOrder) {
+                    waNotifier.notifyVehicleExit(
+                        fullOrder,
+                        fullOrder.client,
+                        fullOrder.vehicule
+                    ).catch(err => console.error('[WA] notifyVehicleExit error:', err.message))
+                }
+            }).catch(() => {})
         }
 
         res.json({

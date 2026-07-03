@@ -1,5 +1,6 @@
 const qaRepository = require('../repository/QARepository')
 const s3Service = require('../services/s3Service')
+const waNotifier = require('../services/whatsappNotifier')
 const sequelize = require('../components/conn_sqlz')
 const initModels = require('../src/modelKorea/init-models')
 const models = initModels(sequelize)
@@ -12,6 +13,7 @@ exports.createOrderQA = async (req, res, next) => {
             tech_comments: req.body.tech_comments,
             client_comments: req.body.client_comments,
             qa_manager_name: req.body.qa_manager_name,
+            technician_name: req.body.technician_name,
         }
         const result = await qaRepository.createQA(params)
         res.json({ success: true, payload: result })
@@ -121,6 +123,15 @@ exports.approveQA = async (req, res, next) => {
                 description: 'Aprobado por Control de Calidad'
             })
             await models.Order_Header.update({ status: 9, update_date: new Date() }, { where: { id: orderId } })
+
+            // WhatsApp notification (non-blocking)
+            const orderRepository = require('../repository/OrderRepository')
+            orderRepository.getOrderById(orderId).then(fullOrder => {
+                if (fullOrder) {
+                    waNotifier.notifyVehicleExit(fullOrder, fullOrder.client, fullOrder.vehicule)
+                        .catch(err => console.error('[WA] notifyVehicleExit QA error:', err.message))
+                }
+            }).catch(() => {})
         }
 
         res.json({ success: true, payload: 'QA approved, order advanced to stage 9' })
@@ -171,6 +182,29 @@ exports.rejectQA = async (req, res, next) => {
                 cycle: newCycle
             })
             await models.Order_Header.update({ status: 5, update_date: new Date() }, { where: { id: orderId } })
+
+            // WhatsApp notification (non-blocking)
+            const orderRepository = require('../repository/OrderRepository')
+            orderRepository.getOrderById(orderId).then(fullOrder => {
+                if (fullOrder) {
+                    const plate = fullOrder.vehicule?.plate_id || "Sin placa"
+                    const clientName = fullOrder.client?.name || "Sin cliente"
+                    const gtmNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guatemala' }))
+                    const fecha = `${gtmNow.getDate().toString().padStart(2,'0')}/${(gtmNow.getMonth()+1).toString().padStart(2,'0')}/${gtmNow.getFullYear()}`
+                    const h = gtmNow.getHours(), m = gtmNow.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM'
+                    const hora = `${h % 12 || 12}:${m.toString().padStart(2,'0')} ${ampm}`
+                    const msg = `⚠️ *QA RECHAZADO*\n\n` +
+                        `📋 Orden: #${fullOrder.number_pass || orderId}\n` +
+                        `👤 Cliente: ${clientName}\n` +
+                        `🔢 Placa: ${plate}\n` +
+                        `🔄 Regresado a: Inicio de Proceso (ciclo ${newCycle})\n` +
+                        `📝 Motivo: ${reject_observations || 'Sin observaciones'}\n` +
+                        `📅 Fecha: ${fecha}\n` +
+                        `⏰ Hora: ${hora}`
+                    waNotifier.notifyAll(msg)
+                        .catch(err => console.error('[WA] notifyQAReject error:', err.message))
+                }
+            }).catch(() => {})
         }
 
         res.json({ success: true, payload: 'QA rejected, order returned to stage 5' })

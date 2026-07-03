@@ -23,6 +23,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: true
     },
+    technician_name: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
     decision: {
       type: DataTypes.STRING(20),
       allowNull: true,

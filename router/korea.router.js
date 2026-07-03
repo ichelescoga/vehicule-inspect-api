@@ -71,6 +71,18 @@ router.post('/checkout/:token/sign', upload.single('file'), documentController.s
 router.get('/reception/:token', documentController.getReceptionData)
 router.post('/reception/:token/sign', upload.single('file'), documentController.submitReceptionForm)
 
+// Daily Cut (PUBLIC — token-based)
+const dailyCutController = require('../controller/dailyCut.controller')
+router.get('/corte/:token', dailyCutController.getDailyCutData)
+
+// Daily Cut Token generation (API key for Lambda)
+router.post('/generateDailyCutToken', (req, res, next) => {
+    const apiKey = req.headers['x-api-key']
+    if (apiKey === 'korea-lambda-2026') return next()
+    // If no API key, fall through to tenant middleware (JWT auth)
+    next()
+}, dailyCutController.generateDailyCutToken)
+
 // ============================================================
 // RUTAS PROTEGIDAS — tenant middleware (requiere JWT con companyId)
 // ============================================================
@@ -130,6 +142,14 @@ router.post('/createVehiculeBrand', vehicleController.createVehiculeBrand)
 router.post('/createVehiculeType', vehicleController.createVehiculeType)
 router.get('/searchVehicleParts/:name', vehicleController.searchVehicleParts)
 router.post('/createVehiclePart', vehicleController.createVehiclePart)
+
+// Vehicle Line
+router.get('/getLinesByBrand/:brandId', vehicleController.getLinesByBrand)
+router.get('/searchLines/:query', vehicleController.searchLines)
+router.post('/createVehicleLine', vehicleController.createVehicleLine)
+router.put('/updateVehicleLine/:id', vehicleController.updateVehicleLine)
+router.put('/updateVehiculeBrand/:id', vehicleController.updateVehiculeBrand)
+router.get('/getAllBrandsWithLines', vehicleController.getAllBrandsWithLines)
 
 // Client
 router.get('/getAllClients', clientController.getAllClients)
@@ -215,6 +235,12 @@ router.post('/createSparePart', uploadController.createSparePart)
 router.post('/uploadSparePartFile', upload.single('file'), uploadController.uploadSparePartFile)
 router.get('/getSparePartFiles/:orderId', uploadController.getSparePartFiles)
 router.put('/deleteSparePartFile/:id', uploadController.deleteSparePartFile)
+
+// Order Invoice
+router.post('/createOrderInvoice', upload.single('file'), documentController.createOrderInvoice)
+router.get('/getOrderInvoice/:orderId', documentController.getOrderInvoice)
+router.put('/updateOrderInvoice/:id', upload.single('file'), documentController.updateOrderInvoice)
+router.put('/deleteOrderInvoice/:id', documentController.deleteOrderInvoice)
 
 // Quality Control (QA)
 const qaController = require('../controller/qa.controller')

@@ -32,6 +32,9 @@ var _Signature_Token = require("./Signature_Token");
 var _Order_Checklist = require("./Order_Checklist");
 var _Order_QA = require("./Order_QA");
 var _QA_File = require("./QA_File");
+var _Daily_Cut_Token = require("./Daily_Cut_Token");
+var _Order_Invoice = require("./Order_Invoice");
+var _Vehicle_Line = require("./Vehicle_Line");
 
 function initModels(sequelize) {
   var Company = _Company(sequelize, DataTypes);
@@ -67,6 +70,9 @@ function initModels(sequelize) {
   var Order_Checklist = _Order_Checklist(sequelize, DataTypes);
   var Order_QA = _Order_QA(sequelize, DataTypes);
   var QA_File = _QA_File(sequelize, DataTypes);
+  var Daily_Cut_Token = _Daily_Cut_Token(sequelize, DataTypes);
+  var Order_Invoice = _Order_Invoice(sequelize, DataTypes);
+  var Vehicle_Line = _Vehicle_Line(sequelize, DataTypes);
 
   Order_Header.belongsTo(Client, { as: "client", foreignKey: "client_id"});
   Client.hasMany(Order_Header, { as: "Order_Headers", foreignKey: "client_id"});
@@ -165,6 +171,16 @@ function initModels(sequelize) {
 
   Order_QA.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
   Order_Header.hasMany(Order_QA, { as: "Order_QAs", foreignKey: "order_id"});
+
+  // Vehicle Line associations
+  Vehicle_Line.belongsTo(Vehicle_Brand, { as: "vehicle_brand", foreignKey: "vehicle_brand_id"});
+  Vehicle_Brand.hasMany(Vehicle_Line, { as: "Vehicle_Lines", foreignKey: "vehicle_brand_id"});
+  Vehicle.belongsTo(Vehicle_Line, { as: "vehicle_line", foreignKey: "vehicle_line_id"});
+  Vehicle_Line.hasMany(Vehicle, { as: "Vehicles", foreignKey: "vehicle_line_id"});
+
+  // Order Invoice associations
+  Order_Invoice.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
+  Order_Header.hasMany(Order_Invoice, { as: "Order_Invoices", foreignKey: "order_id"});
   QA_File.belongsTo(Order_Header, { as: "order", foreignKey: "order_id"});
   QA_File.belongsTo(Order_QA, { as: "qa", foreignKey: "qa_id"});
   Order_QA.hasMany(QA_File, { as: "QA_Files", foreignKey: "qa_id"});
@@ -203,6 +219,9 @@ function initModels(sequelize) {
     Order_Checklist,
     Order_QA,
     QA_File,
+    Daily_Cut_Token,
+    Order_Invoice,
+    Vehicle_Line,
   };
 }
 module.exports = initModels;

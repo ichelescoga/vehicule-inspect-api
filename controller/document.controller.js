@@ -94,6 +94,103 @@ exports.getDocumentTypes = async (req, res, next) => {
     }
 }
 
+// ─── ORDER INVOICE ───
+
+exports.createOrderInvoice = async (req, res, next) => {
+    try {
+        const orderId = parseInt(req.body.order_id)
+        if (!orderId) return res.json({ success: false, payload: 'order_id es requerido' })
+
+        let s3Path = null
+        let fileName = null
+
+        if (req.file) {
+            const s3Result = await s3Service.uploadFile(
+                req.file.buffer,
+                req.file.originalname,
+                req.file.mimetype,
+                orderId
+            )
+            s3Path = s3Result.s3Path
+            fileName = s3Result.originalName
+        }
+
+        const record = await models.Order_Invoice.create({
+            order_id: orderId,
+            invoice_number: req.body.invoice_number,
+            invoice_date: req.body.invoice_date,
+            amount_without_iva: parseFloat(req.body.amount_without_iva),
+            amount_with_iva: parseFloat(req.body.amount_with_iva),
+            s3_path: s3Path,
+            file_name: fileName,
+            create_date: new Date()
+        })
+
+        res.json({ success: true, payload: record })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getOrderInvoice = async (req, res, next) => {
+    try {
+        const result = await models.Order_Invoice.findOne({
+            where: { order_id: req.params.orderId, status: 1 },
+            order: [['create_date', 'DESC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.updateOrderInvoice = async (req, res, next) => {
+    try {
+        const invoiceId = parseInt(req.params.id)
+        const updateData = {
+            invoice_number: req.body.invoice_number,
+            invoice_date: req.body.invoice_date,
+            amount_without_iva: parseFloat(req.body.amount_without_iva),
+            amount_with_iva: parseFloat(req.body.amount_with_iva),
+        }
+
+        if (req.file) {
+            const existing = await models.Order_Invoice.findByPk(invoiceId)
+            if (!existing) return res.json({ success: false, payload: 'Factura no encontrada' })
+
+            const s3Result = await s3Service.uploadFile(
+                req.file.buffer,
+                req.file.originalname,
+                req.file.mimetype,
+                existing.order_id
+            )
+            updateData.s3_path = s3Result.s3Path
+            updateData.file_name = s3Result.originalName
+        }
+
+        const result = await models.Order_Invoice.update(updateData, { where: { id: invoiceId } })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.deleteOrderInvoice = async (req, res, next) => {
+    try {
+        const result = await models.Order_Invoice.update(
+            { status: 0 },
+            { where: { id: req.params.id } }
+        )
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
 // ─── ORDER COMMENT ───
 
 exports.createOrderComment = async (req, res, next) => {
@@ -863,12 +960,22 @@ exports.getReceptionData = async (req, res, next) => {
             order: [['create_date', 'DESC']]
         })
 
+        // Load inspection files (photos/videos)
+        const inspectionFiles = await models.Inspection_File.findAll({
+            where: { order_id: sigToken.order_id, status: 1 },
+            include: [
+                { model: models.Vehicle_Part, as: 'vehicule_part' }
+            ],
+            order: [['create_date', 'DESC']]
+        })
+
         res.json({
             success: true,
             payload: {
                 order: order,
                 comment: comment,
                 expires_at: sigToken.expires_at,
+                inspectionFiles: inspectionFiles,
             }
         })
     } catch (error) {

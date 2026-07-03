@@ -10,6 +10,7 @@ module.exports = (function() {
             tech_comments: params.tech_comments,
             client_comments: params.client_comments,
             qa_manager_name: params.qa_manager_name,
+            technician_name: params.technician_name,
             decision: 'pending',
             create_date: new Date(),
             status: 1
@@ -29,6 +30,7 @@ module.exports = (function() {
             tech_comments: params.tech_comments,
             client_comments: params.client_comments,
             qa_manager_name: params.qa_manager_name,
+            technician_name: params.technician_name,
             decision: params.decision,
             reject_observations: params.reject_observations,
             signature_s3_path: params.signature_s3_path,

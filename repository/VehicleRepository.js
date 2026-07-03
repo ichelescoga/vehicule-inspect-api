@@ -23,6 +23,7 @@ let VehicleRepository = function(){
             color: params.color,
             vehicule_type_id: params.vehicule_type_id,
             vehicule_brand_id: params.vehicule_brand_id,
+            vehicle_line_id: params.vehicle_line_id || null,
             transmision_type: params.transmision_type,
             company_id: companyId,
             create_date: new Date(),
@@ -58,7 +59,8 @@ let VehicleRepository = function(){
             where,
             include: [
                 { model: models.Vehicle_Brand, as: 'vehicule_brand' },
-                { model: models.Vehicle_Type, as: 'vehicule_type' }
+                { model: models.Vehicle_Type, as: 'vehicule_type' },
+                { model: models.Vehicle_Line, as: 'vehicle_line' }
             ]
         })
     }
@@ -72,7 +74,8 @@ let VehicleRepository = function(){
             },
             include: [
                 { model: models.Vehicle_Brand, as: 'vehicule_brand' },
-                { model: models.Vehicle_Type, as: 'vehicule_type' }
+                { model: models.Vehicle_Type, as: 'vehicule_type' },
+                { model: models.Vehicle_Line, as: 'vehicle_line' }
             ]
         })
     }
@@ -85,6 +88,7 @@ let VehicleRepository = function(){
             color: params.color,
             vehicule_type_id: params.vehicule_type_id,
             vehicule_brand_id: params.vehicule_brand_id,
+            vehicle_line_id: params.vehicle_line_id,
             transmision_type: params.transmision_type,
             update_date: new Date()
         }

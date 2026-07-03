@@ -481,8 +481,8 @@ function generateQAPdf({ order, qa, qaFiles, signatureBuffer }) {
         y = drawSectionHeader(doc, MARGIN, y, 'COMENTARIOS DEL TÉCNICO', '▸', SECTION_COLORS.qa)
         y = drawFieldBox(doc, MARGIN, y, null, qa.tech_comments, 50)
 
-        // ─── Comentarios del cliente de taller ───
-        y = drawSectionHeader(doc, MARGIN, y, 'COMENTARIOS DEL CLIENTE DE TALLER', '▸', '#1565C0')
+        // ─── Comentarios del jefe de taller ───
+        y = drawSectionHeader(doc, MARGIN, y, 'COMENTARIOS DEL JEFE DE TALLER', '▸', '#1565C0')
         y = drawFieldBox(doc, MARGIN, y, null, qa.client_comments, 50)
 
         // ─── Videos adjuntos ───
@@ -526,6 +526,16 @@ function generateQAPdf({ order, qa, qaFiles, signatureBuffer }) {
             y += 14
             doc.font(FONT_REGULAR).fontSize(10).fillColor('#000000')
             doc.text(qa.qa_manager_name, MARGIN, y)
+            y += 16
+        }
+
+        // ─── Técnico ───
+        if (qa.technician_name) {
+            doc.font(FONT_BOLD).fontSize(9).fillColor('#283346')
+            doc.text('TÉCNICO:', MARGIN, y)
+            y += 14
+            doc.font(FONT_REGULAR).fontSize(10).fillColor('#000000')
+            doc.text(qa.technician_name, MARGIN, y)
             y += 16
         }
 

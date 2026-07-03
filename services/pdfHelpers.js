@@ -57,15 +57,19 @@ function drawSectionHeader(doc, x, y, title, icon, color) {
     return y + h + 8
 }
 
-function drawFieldBox(doc, x, y, label, value, boxH = 30) {
+function drawFieldBox(doc, x, y, label, value, minBoxH = 30) {
     if (label) {
         doc.font(FONT_BOLD).fontSize(9).fillColor('#283346')
         doc.text(label, x, y)
         y += 12
         doc.fillColor('#000000')
     }
-    doc.rect(x, y, CONTENT_W, boxH).lineWidth(0.5).stroke('#CCCCCC')
+    // Calculate actual text height to avoid overflow
     doc.font(FONT_REGULAR).fontSize(10)
+    const textH = doc.heightOfString(value || '', { width: CONTENT_W - 12 })
+    const boxH = Math.max(minBoxH, textH + 12)
+    y = checkNewPage(doc, y, boxH + 10)
+    doc.rect(x, y, CONTENT_W, boxH).lineWidth(0.5).stroke('#CCCCCC')
     doc.text(value || '', x + 6, y + 6, { width: CONTENT_W - 12 })
     return y + boxH + 6
 }

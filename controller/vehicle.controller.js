@@ -1,5 +1,9 @@
 const vehicleRepository = require('../repository/VehicleRepository')
 const { validatePlate } = require('../src/utils/validators')
+const sequelize = require('../components/conn_sqlz')
+const initModels = require("../src/modelKorea/init-models")
+const { Op } = require('sequelize')
+const models = initModels(sequelize)
 
 exports.getAllVehiculeBrands = async (req, res, next) => {
     try{
@@ -74,6 +78,7 @@ exports.createVehicle = async (req, res, next) => {
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
             vehicule_brand_id: req.body.vehicule_brand_id,
+            vehicle_line_id: req.body.vehicle_line_id || null,
             transmision_type: req.body.transmision_type
         }
         let result = await vehicleRepository.createVehicle(params, req.companyId)
@@ -208,6 +213,7 @@ exports.updateVehicle = async (req, res, next) => {
             color: req.body.color,
             vehicule_type_id: req.body.vehicule_type_id,
             vehicule_brand_id: req.body.vehicule_brand_id,
+            vehicle_line_id: req.body.vehicle_line_id,
             transmision_type: req.body.transmision_type,
             status: req.body.status
         }
@@ -328,6 +334,96 @@ exports.createVehiclePart = async (req, res, next) => {
             payload: error
         })
         return
+    }
+}
+
+// ─── VEHICLE LINE ───
+
+exports.getLinesByBrand = async (req, res, next) => {
+    try {
+        const result = await models.Vehicle_Line.findAll({
+            where: { vehicle_brand_id: req.params.brandId, status: 1 },
+            order: [['name', 'ASC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.searchLines = async (req, res, next) => {
+    try {
+        const query = req.params.query
+        const result = await models.Vehicle_Line.findAll({
+            where: {
+                name: { [Op.like]: `%${query}%` },
+                status: 1
+            },
+            include: [{ model: models.Vehicle_Brand, as: 'vehicle_brand', attributes: ['id', 'name'] }],
+            order: [['name', 'ASC']],
+            limit: 20
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.createVehicleLine = async (req, res, next) => {
+    try {
+        const result = await models.Vehicle_Line.create({
+            name: req.body.name,
+            vehicle_brand_id: req.body.vehicle_brand_id,
+            create_date: new Date()
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.updateVehicleLine = async (req, res, next) => {
+    try {
+        const result = await models.Vehicle_Line.update({
+            name: req.body.name,
+            status: req.body.status,
+            update_date: new Date()
+        }, { where: { id: req.params.id } })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.updateVehiculeBrand = async (req, res, next) => {
+    try {
+        const result = await models.Vehicle_Brand.update({
+            name: req.body.name,
+            status: req.body.status,
+            update_date: new Date()
+        }, { where: { id: req.params.id } })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
+    }
+}
+
+exports.getAllBrandsWithLines = async (req, res, next) => {
+    try {
+        const result = await models.Vehicle_Brand.findAll({
+            where: { status: 1 },
+            include: [{ model: models.Vehicle_Line, as: 'Vehicle_Lines', where: { status: 1 }, required: false }],
+            order: [['name', 'ASC'], [{ model: models.Vehicle_Line, as: 'Vehicle_Lines' }, 'name', 'ASC']]
+        })
+        res.json({ success: true, payload: result })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, payload: error.message || error })
     }
 }
 
