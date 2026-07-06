@@ -41,10 +41,12 @@ let OrderRepository = function(){
             include: [
                 { model: models.Client, as: 'client' },
                 { model: models.Vendor, as: 'vendor' },
+                { model: models.Company, as: 'company' },
                 { model: models.Vehicle, as: 'vehicule',
                     include: [
                         { model: models.Vehicle_Brand, as: 'vehicule_brand' },
-                        { model: models.Vehicle_Type, as: 'vehicule_type' }
+                        { model: models.Vehicle_Type, as: 'vehicule_type' },
+                        { model: models.Vehicle_Line, as: 'vehicle_line' }
                     ]
                 },
                 { model: models.Technical, as: 'technical' },

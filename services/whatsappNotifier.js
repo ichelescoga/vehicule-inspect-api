@@ -84,14 +84,17 @@ async function notifyVehicleEntry(order, client, vehicle, vendor) {
     const plate = vehicle?.plate_id || "Sin placa";
     const brand = vehicle?.vehicule_brand?.name || "";
     const type = vehicle?.vehicule_type?.name || "";
+    const line = vehicle?.vehicle_line?.name || vehicle?.linea || "No Definida";
     const clientName = client?.name || "Sin cliente";
     const vendorName = vendor?.name || "";
     const numberPass = order.number_pass || order.id;
+    const companyName = order.company?.name || "Korea Autos";
 
-    const msg = `🚗 *VEHICULO INGRESADO*\n\n` +
+    const msg = `🚗 *${companyName}*\n*VEHICULO INGRESADO*\n\n` +
         `📋 Orden: #${numberPass}\n` +
         `👤 Cliente: ${clientName}\n` +
-        `🚙 Vehiculo: ${brand} ${type}\n` +
+        `🚙 Marca: ${brand} ${type}\n` +
+        `🚘 Linea: ${line}\n` +
         `🔢 Placa: ${plate}\n` +
         `🏪 Proveedor: ${vendorName}\n` +
         `📅 Fecha: ${formatDate()}\n` +
@@ -107,13 +110,16 @@ async function notifyVehicleExit(order, client, vehicle) {
     const plate = vehicle?.plate_id || "Sin placa";
     const brand = vehicle?.vehicule_brand?.name || "";
     const type = vehicle?.vehicule_type?.name || "";
+    const line = vehicle?.vehicle_line?.name || vehicle?.linea || "No Definida";
     const clientName = client?.name || "Sin cliente";
     const numberPass = order.number_pass || order.id;
+    const companyName = order.company?.name || "Korea Autos";
 
-    const msg = `✅ *VEHICULO ENTREGADO*\n\n` +
+    const msg = `✅ *${companyName}*\n*VEHICULO ENTREGADO*\n\n` +
         `📋 Orden: #${numberPass}\n` +
         `👤 Cliente: ${clientName}\n` +
-        `🚙 Vehiculo: ${brand} ${type}\n` +
+        `🚙 Marca: ${brand} ${type}\n` +
+        `🚘 Linea: ${line}\n` +
         `🔢 Placa: ${plate}\n` +
         `📅 Fecha: ${formatDate()}\n` +
         `⏰ Hora: ${formatTime()}`;
@@ -129,8 +135,9 @@ async function notifyStatusChange(order, newStatus, client, vehicle) {
     const clientName = client?.name || "Sin cliente";
     const numberPass = order.number_pass || order.id;
     const statusLabel = STATUS_LABELS[newStatus] || `Status ${newStatus}`;
+    const companyName = order.company?.name || "Korea Autos";
 
-    const msg = `🔄 *CAMBIO DE STATUS*\n\n` +
+    const msg = `🔄 *${companyName}*\n*CAMBIO DE STATUS*\n\n` +
         `📋 Orden: #${numberPass}\n` +
         `👤 Cliente: ${clientName}\n` +
         `🔢 Placa: ${plate}\n` +
