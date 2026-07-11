@@ -135,7 +135,7 @@ exports.createOrderInvoice = async (req, res, next) => {
 
 exports.getOrderInvoice = async (req, res, next) => {
     try {
-        const result = await models.Order_Invoice.findOne({
+        const result = await models.Order_Invoice.findAll({
             where: { order_id: req.params.orderId, status: 1 },
             order: [['create_date', 'DESC']]
         })
