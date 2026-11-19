@@ -28,8 +28,7 @@ let UserRepository = function(){
 
     let getPendingAccountRequests = async() => {
         return await models.Account_Request.findAll({
-            where: { status: 1 },
-            order: [['created_at', 'ASC']]
+            order: [['status', 'ASC'], ['created_at', 'DESC']]
         })
     }
 
